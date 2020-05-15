@@ -26,8 +26,9 @@ export default function App() {
   const [product, setProduct] = useState([]);
 
   useEffect(() => {
-    //staticData();
-    //productFile();
+    staticData();
+    //productFile(); //Jethro papanu ko matatawag productFile() from here
+    //para ma load ko ung DB_JUICES.json file
   }, []);
 
   function staticData() {

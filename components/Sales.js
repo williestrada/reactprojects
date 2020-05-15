@@ -13,8 +13,10 @@ import UserContext from './UserContext';
 
 export default function Sales({navigation}) {
   const {product, setProduct} = useContext(UserContext);
-
-  //alert(product);
+  const productList = product.map(item => {
+    <Text>{item.OtherCde}</Text>;
+  });
+  //  alert(product);
   return (
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
@@ -25,6 +27,7 @@ export default function Sales({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo />
+        {productList}
         {/* <Text style={{color: 'white'}}>{product[0].OtherCde}</Text>
         <Text style={{color: 'white'}}>{product[0].Descript}</Text> */}
       </SafeAreaView>

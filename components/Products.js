@@ -16,10 +16,6 @@ import UserContext from './UserContext';
 export default function Products({navigation}) {
   const {product, setProduct} = useContext(UserContext);
 
-  // useEffect(() => {
-  //   //productFile();
-  // }, []); //passing empty array here wil make sure useeffect runs only once
-
   function ItemList({item, index}) {
     return (
       <View
