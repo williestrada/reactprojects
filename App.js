@@ -1,13 +1,10 @@
 import React, {useEffect, useState} from 'react';
 
 import {
-  Button,
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
   Platform,
   Alert,
+  PermissionsAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
@@ -19,46 +16,22 @@ import Products from './components/Products';
 import Settings from './components/Settings';
 import CustomDrawer from './components/CustomDrawer';
 import UserContext from './components/UserContext';
+//import GetMasterFile from './components/GetMasterFile';
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   const [product, setProduct] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    staticData();
-    //productFile(); //Jethro papanu ko matatawag productFile() from here
-    //para ma load ko ung DB_JUICES.json file
+    console.log('Fetching masterfile');
+    getMasterFile();
   }, []);
 
-  function staticData() {
-    let data = [
-      {OtherCde: '123456', Descript: 'San Mig Lights', ItemPrce: 45},
-      {OtherCde: '987654', Descript: 'Johnnie Walker Black', ItemPrce: 1100},
-    ];
-    setProduct(data);
-  }
-
-  async function getDataFile(jsonData) {
-    const newData = [];
-    JSON.parse(jsonData).map(mFile => {
-      let OtherCde = mFile.OtherCde;
-      let Descript = mFile.Descript;
-      let ItemPrce = mFile.ItemPrce;
-      const dataProduct = {OtherCde, Descript, ItemPrce};
-      newData.push(dataProduct);
-    });
-    console.log(newData);
-    setProduct(newData);
-  }
-
-  async function productFile() {
-    let RNFS = require('react-native-fs');
-    let storedFileName = 'DB_JUICES.json';
-    let path = RNFS.DownloadDirectoryPath + '/' + storedFileName;
-    let ext = /[.]/.exec(storedFileName)
-      ? /[^.]+$/.exec(storedFileName)
-      : undefined;
+  async function getMasterFile() {
+    const RNFS = require('react-native-fs');
+    const downloadPath = `${RNFS.DownloadDirectoryPath}/masterfile.json`;
 
     try {
       const granted = await PermissionsAndroid.request(
@@ -68,29 +41,31 @@ export default function App() {
           buttonPositive: 'OK',
         },
       );
-
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        await RNFS.readFile(path, 'utf8')
-          .then(contents => {
-            console.log(contents);
-            getDataFile(contents);
-          })
-          .catch(err => {
-            return alert(err);
-          });
-      } else {
-        alert('Permission denied');
+        const newData = [];
+        const masterData = await RNFS.readFile(downloadPath, 'utf8');
+        const updatedMasterData = JSON.parse(masterData).map(mFile => {
+          if (true) {
+            let OtherCde = mFile.OtherCde;
+            let Descript = mFile.Descript;
+            let ItemPrce = mFile.ItemPrce;
+            const dataProduct = {OtherCde, Descript, ItemPrce};
+            newData.push(dataProduct);
+          }
+        });
+        await setProduct(newData);
+        setLoading(false);
       }
     } catch (err) {
-      Alert.alert('Error!', err);
+      alert(err);
     }
   }
 
   return (
-    <UserContext.Provider value={{product, staticData, setProduct}}>
+    <UserContext.Provider value={{product, setProduct, isLoading, setLoading}}>
       <NavigationContainer>
         <Drawer.Navigator
-          initialRouteName="Settings" // dapat initial screen ko ay Sales pero nag eeror sa rendering
+          initialRouteName="Sales"
           drawerContent={props => <CustomDrawer {...props} />}
           drawerStyle={{
             //backgroundColor: '#c6cbef',
@@ -141,11 +116,3 @@ export default function App() {
     </UserContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  salesContainer: {
-    //    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

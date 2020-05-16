@@ -1,12 +1,12 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ImageBackground,
   StyleSheet,
   FlatList,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import Header from './Header';
 import DateInfo from './DateInfo';
@@ -14,22 +14,26 @@ import CountData from './CountData';
 import UserContext from './UserContext';
 
 export default function Products({navigation}) {
-  const {product, setProduct} = useContext(UserContext);
+  const {product, isLoading, setLoading} = useContext(UserContext);
+  let txtSearch = 'BRAIDED';
+  const dataList = product.filter(
+    mFile =>
+      mFile.Descript.includes(txtSearch) || mFile.OtherCde.includes(txtSearch),
+  );
 
+  console.log('Product component');
   function ItemList({item, index}) {
+    // style={{
+    //   ...styles.itemContainer,
+    //   backgroundColor: index % 2 == 0 ? 'white' : 'lightgrey',
+    // }}>
     return (
-      <View
-        style={{
-          ...styles.itemContainer,
-          backgroundColor: index % 2 == 0 ? 'lightgrey' : '#FFFFFF',
-        }}>
-        <TouchableOpacity>
-          <View style={styles.textCodeView}>
-            <Text style={styles.textOtherCde}>Bar Code: {item.OtherCde}</Text>
-            <Text style={styles.textItem}>Price: {item.ItemPrce}</Text>
-          </View>
-          <Text style={styles.textDescript}>{item.Descript}</Text>
-        </TouchableOpacity>
+      <View style={styles.itemContainer}>
+        <View style={styles.textCodeView}>
+          <Text style={styles.textOtherCde}>Bar Code: {item.OtherCde}</Text>
+          <Text style={styles.textItem}>Price: {item.ItemPrce}</Text>
+        </View>
+        <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
       </View>
     );
   }
@@ -49,12 +53,20 @@ export default function Products({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo />
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          animating={isLoading}
+          hidesWhenStopped={true}
+          style={{height: 0}}
+        />
+
         <FlatList
-          data={product}
+          data={dataList}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
           keyExtractor={item => item.OtherCde}
           ListFooterComponent={() => {
-            if (!product.length) {
+            if (!dataList.length) {
               return (
                 <View>
                   <Text
@@ -86,7 +98,7 @@ export default function Products({navigation}) {
             return null;
           }}
         />
-        <CountData data={product} />
+        <CountData data={dataList} master={product} />
       </SafeAreaView>
     </>
   );
@@ -110,15 +122,17 @@ const styles = StyleSheet.create({
 
   // Flatlist items container
   itemContainer: {
-    borderWidth: 1,
+    borderBottomWidth: 0.8,
     borderStyle: 'dashed',
-    borderRadius: 10,
+    //borderRadius: 10,
+    borderBottomColor: 'rgba(250,250,250,0.4)',
     padding: 3,
     paddingLeft: 5,
     paddingRight: 5,
     marginVertical: 2,
     marginHorizontal: 10,
-    backgroundColor: 'rgba(250,250,250,0.6)',
+    //backgroundColor: 'rgba(250,250,250,0.6)',
+    backgroundColor: '#00000000',
     //    alignItems: 'center', //centers the delete button
   },
   textCodeView: {
@@ -128,12 +142,15 @@ const styles = StyleSheet.create({
     flex: 2,
     fontSize: 12,
     fontWeight: 'bold',
+    color: 'white',
   },
   textItem: {
     fontSize: 12,
+    color: 'white',
   },
   textDescript: {
     fontStyle: 'italic',
-    fontSize: 12,
+    fontSize: 10,
+    color: 'white',
   },
 });

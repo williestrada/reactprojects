@@ -2,7 +2,8 @@ import React from 'react';
 
 const UserContext = React.createContext({
   product: [],
-  staticData: () => {},
+  isLoading: true,
   setProduct: () => {},
+  setLoading: () => {},
 });
 export default UserContext;

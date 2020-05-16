@@ -1,11 +1,12 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-export default function CountData({data}) {
-  let nTotalItems = data.length;
+export default function CountData({data, master}) {
+  let nTotalList = data.length;
+  let nTotalItems = master.length;
   return (
     <View style={styles.viewCounter}>
-      <Text style={styles.txtCounter}> </Text>
+      <Text style={styles.txtCounter}>List total = {nTotalList}</Text>
       <Text style={styles.txtTotal}>Total items= {nTotalItems} </Text>
     </View>
   );

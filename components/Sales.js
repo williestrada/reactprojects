@@ -11,12 +11,14 @@ import Header from './Header';
 import DateInfo from './DateInfo';
 import UserContext from './UserContext';
 
+async function getProduct(product, item) {
+  return await product.filter(data => data.OtherCde.includes(item));
+}
+
 export default function Sales({navigation}) {
   const {product, setProduct} = useContext(UserContext);
-  const productList = product.map(item => {
-    <Text>{item.OtherCde}</Text>;
-  });
-  //  alert(product);
+  // const item = getProduct(product, '987654');
+  // alert(item);
   return (
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
@@ -27,9 +29,6 @@ export default function Sales({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo />
-        {productList}
-        {/* <Text style={{color: 'white'}}>{product[0].OtherCde}</Text>
-        <Text style={{color: 'white'}}>{product[0].Descript}</Text> */}
       </SafeAreaView>
     </>
   );
