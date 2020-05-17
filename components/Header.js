@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Feather';
 //import {Icon} from 'react-native-elements';
 
 export default function Header({navigation, title, iconName}) {
+  console.log('Rendering Header component');
   return (
     <View>
       <View style={styles.topHeaderContainer}>

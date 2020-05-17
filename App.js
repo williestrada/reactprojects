@@ -16,13 +16,22 @@ import Products from './components/Products';
 import Settings from './components/Settings';
 import CustomDrawer from './components/CustomDrawer';
 import UserContext from './components/UserContext';
-//import GetMasterFile from './components/GetMasterFile';
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   const [product, setProduct] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [salesDtl, setSalesDtl] = useState([
+    {
+      Date____: Date(),
+      Quantity: 1,
+      OtherCde: '123456',
+      Descript: 'San Miguel Pale Pilsen',
+      ItemPrce: 1200.55,
+    },
+  ]);
 
   useEffect(() => {
     console.log('Fetching masterfile');
@@ -62,7 +71,17 @@ export default function App() {
   }
 
   return (
-    <UserContext.Provider value={{product, setProduct, isLoading, setLoading}}>
+    <UserContext.Provider
+      value={{
+        product,
+        setProduct,
+        salesDtl,
+        setSalesDtl,
+        isLoading,
+        setLoading,
+        modalOpen,
+        setModalOpen,
+      }}>
       <NavigationContainer>
         <Drawer.Navigator
           initialRouteName="Sales"

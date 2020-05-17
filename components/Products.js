@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   Text,
@@ -12,26 +12,31 @@ import Header from './Header';
 import DateInfo from './DateInfo';
 import CountData from './CountData';
 import UserContext from './UserContext';
+import Icon from 'react-native-vector-icons/Fontisto';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
-  let txtSearch = 'BRAIDED';
+  let txtSearch = 'GARMIN';
   const dataList = product.filter(
     mFile =>
       mFile.Descript.includes(txtSearch) || mFile.OtherCde.includes(txtSearch),
   );
 
-  console.log('Product component');
+  console.log('Rendering Product component');
   function ItemList({item, index}) {
-    // style={{
-    //   ...styles.itemContainer,
-    //   backgroundColor: index % 2 == 0 ? 'white' : 'lightgrey',
-    // }}>
+    let nIndex = index + 1;
+    let nItemPrce = item.ItemPrce.toFixed(2).replace(
+      /\d(?=(\d{3})+\.)/g,
+      '$&,',
+    );
     return (
       <View style={styles.itemContainer}>
         <View style={styles.textCodeView}>
-          <Text style={styles.textOtherCde}>Bar Code: {item.OtherCde}</Text>
-          <Text style={styles.textItem}>Price: {item.ItemPrce}</Text>
+          <Text style={styles.textOtherCde}>
+            {nIndex.toString().trim()}- Code: {item.OtherCde}
+          </Text>
+          <Text style={styles.textItem}>Price: {nItemPrce}</Text>
         </View>
         <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
       </View>
@@ -99,6 +104,19 @@ export default function Products({navigation}) {
           }}
         />
         <CountData data={dataList} master={product} />
+        <View style={styles.bottomMenu}>
+          <TouchableOpacity>
+            <Icon.Button
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'search' : 'search'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                Search
+              </Text>
+            </Icon.Button>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </>
   );
@@ -152,5 +170,15 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 10,
     color: 'white',
+  },
+
+  bottomMenu: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    padding: 2,
+    margin: 5,
+    borderWidth: 0.8,
+    borderColor: 'white',
+    //backgroundColor: '#333',
   },
 });

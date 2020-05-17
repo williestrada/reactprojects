@@ -3,7 +3,6 @@ import React, {useContext} from 'react';
 import {View, Image, StyleSheet, BackHandler, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/AntDesign';
-import UserContext from './UserContext';
 
 import {
   DrawerContentScrollView,
@@ -14,8 +13,6 @@ import {
 const logo = require('../images/InfoPlus.png');
 
 const callAbout = props => {
-  const {staticData} = useContext(UserContext);
-  //staticData();
   props.navigation.closeDrawer();
 
   //alert('About');
