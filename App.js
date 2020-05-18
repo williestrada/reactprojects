@@ -24,13 +24,15 @@ export default function App() {
   const [isLoading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [salesDtl, setSalesDtl] = useState([
-    {
-      Date____: Date(),
-      Quantity: 1,
-      OtherCde: '123456',
-      Descript: 'San Miguel Pale Pilsen',
-      ItemPrce: 1200.55,
-    },
+    // {
+    //   RecordId: Date.now(),
+    //   Date____: Date(),
+    //   Quantity: 1,
+    //   OtherCde: '123456',
+    //   Descript: 'San Miguel Pale Pilsen',
+    //   ItemPrce: 1200.55,
+    //   Location: '',
+    // },
   ]);
 
   useEffect(() => {

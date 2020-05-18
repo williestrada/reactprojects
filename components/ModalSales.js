@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,40 +7,126 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
+  FlatList,
+  Keyboard,
 } from 'react-native';
 import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
 //import DateTimePicker from '@react-native-community/datetimepicker';
-//import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-{
-  /* <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1 }} scrollEnabled></KeyboardAwareScrollView> */
-}
 
 export default function ModalSales() {
   const {product, setSalesDtl, modalOpen, setModalOpen} = useContext(
     UserContext,
   );
   const [date, setDate] = useState(new Date());
-  const [valQuantity, setQuantity] = useState('');
+  const [valQuantity, setQuantity] = useState(1);
   const [valOtherCde, setOtherCde] = useState('');
   const [valDescript, setDescript] = useState('');
-  const [valItemPrce, setItemPrce] = useState('');
+  const [valItemPrce, setItemPrce] = useState(0);
   const [textMessage, setMessage] = useState('');
-  console.log('Rendering Modal Sales ');
 
-  //jest.mock('react-native/Libraries/Animated/src/NativeAnimatedHelper');
+  const [pickList, setPickList] = useState([]);
+
+  //reference to textinput fields
+  const othercde = React.createRef();
+  const descript = React.createRef();
+  const quantity = React.createRef();
+  const itemprce = React.createRef();
+  useEffect(() => {
+    console.log('Rendering Modal Sales ');
+  }, []);
+
+  //Search product and generate picklist on setPickList
+  const getProduct = () => {
+    if (!valOtherCde) {
+      alertMsg('Enter a bar code value');
+      return;
+    }
+    if (valOtherCde.length < 5) {
+      alertMsg('Enter at least 5 chars to limit search');
+      return;
+    }
+    let txtSearch = valOtherCde.trim();
+    const dataItem = product.filter(data => data.OtherCde.includes(txtSearch));
+    if (dataItem.length > 0) {
+      setOtherCde(dataItem[0].OtherCde);
+      setDescript(dataItem[0].Descript);
+      setItemPrce(
+        dataItem[0].ItemPrce.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
+      );
+
+      if (dataItem.length > 0 ?? dataItem.length < 20) {
+        // Keyboard.dismiss();
+        alertMsg(dataItem.length + ' items found');
+        setPickList(dataItem); //Flatlist
+      }
+    } else {
+      setDescript('Item not in the masterfile');
+      setItemPrce('0.00');
+      setPickList([]); //Flatlist
+    }
+    setQuantity('1');
+    descript.current.focus();
+    return;
+  };
+
+  const selectFromList = item => {
+    setOtherCde(item.OtherCde);
+    setDescript(item.Descript);
+    setQuantity('1');
+    setItemPrce(item.ItemPrce.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+  };
+
+  const alertMsg = msg => {
+    setTimeout(() => {
+      setMessage('');
+    }, 5000);
+    setMessage(msg);
+  };
 
   const saveSalesData = () => {
+    let dDate____ =
+      typeof date == 'object'
+        ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
+        : date.substr(0, 16);
+    let cRecordId = Date.now();
+    let cLocation = '';
+    othercde.current.focus();
+
+    if (valOtherCde == 0 || valOtherCde == 'undefined') {
+      alertMsg('Pls. enter bar code');
+      return;
+    }
+    if (valDescript == '' || valDescript == 'undefined') {
+      alertMsg('Pls. enter description');
+      descript.current.focus();
+      return;
+    }
+    if (valQuantity == 0 || valQuantity == 'undefined') {
+      alertMsg('Pls. enter quantity');
+      quantity.current.focus();
+      return;
+    }
+    if (valItemPrce == 0) {
+      alertMsg('Pls. enter item price');
+      itemprce.current.focus();
+      return;
+    }
+
     setSalesDtl(prevSales => {
+      alertMsg('Data is saved.');
+      let cRecordId = Date.now();
       return [
         ...prevSales,
         {
-          Date____: Date(),
-          Quantity: parseInt(valQuantity, 10),
+          RecordId: cRecordId,
+          Date____: dDate____,
+          Quantity: Number(valQuantity),
           OtherCde: valOtherCde,
           Descript: valDescript,
-          ItemPrce: parseFloat(valItemPrce),
+          ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
         },
       ];
     });
@@ -49,12 +135,28 @@ export default function ModalSales() {
     setDescript('');
     setQuantity('');
     setItemPrce('');
-    setTimeout(() => {
-      setMessage('');
-    }, 5000);
-    setMessage('Data is saved.');
-    //setModalOpen(false)
   };
+
+  function ItemList({item, index}) {
+    let nIndex = index + 1;
+    let nItemPrce = item.ItemPrce.toFixed(2).replace(
+      /\d(?=(\d{3})+\.)/g,
+      '$&,',
+    );
+    return (
+      <View style={styles.itemContainer}>
+        <TouchableOpacity onPress={() => selectFromList(item)}>
+          <View style={styles.textCodeView}>
+            <Text style={styles.txtOtherCde}>
+              {nIndex.toString().trim()}- Code: {item.OtherCde}
+            </Text>
+            <Text style={styles.textItem}>Price: {nItemPrce}</Text>
+          </View>
+          <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <Modal visible={modalOpen} animationType="slide" transparent={true}>
@@ -95,48 +197,86 @@ export default function ModalSales() {
                 }}
               />
             </View>
+
+            <View style={styles.inputView}>
+              <Text style={styles.inputLabel}>Bar Code</Text>
+              <View style={{flexDirection: 'row'}}>
+                <TextInput
+                  ref={othercde}
+                  style={{...styles.textInput, ...styles.textOtherCde}}
+                  placeholder="Enter bar code ..."
+                  autoCapitalize="characters"
+                  onSubmitEditing={() => {
+                    getProduct();
+                  }}
+                  autoFocus={true}
+                  showSoftInputOnFocus={true}
+                  value={valOtherCde}
+                  returnKeyType="search"
+                  onChangeText={val => setOtherCde(val)}
+                />
+                <Icon.Button
+                  style={{color: 'white'}}
+                  size={20}
+                  backgroundColor="#00000000"
+                  onPress={() => getProduct()}
+                  name={Platform.OS === 'android' ? 'search' : 'search'}>
+                  <Text
+                    style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                    Search
+                  </Text>
+                </Icon.Button>
+              </View>
+            </View>
+
+            <View style={styles.inputView}>
+              <Text style={styles.inputLabel}>Description</Text>
+              <TextInput
+                ref={descript}
+                style={styles.textInput}
+                placeholder="Enter description ..."
+                selectTextOnFocus={true}
+                onSubmitEditing={() => {
+                  quantity.current.focus();
+                }}
+                value={valDescript}
+                onChangeText={val => setDescript(val)}
+              />
+            </View>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-around'}}>
               <View style={styles.inputView}>
                 <Text style={styles.inputLabel}>Quantity</Text>
                 <TextInput
+                  ref={quantity}
                   style={{...styles.textInput, ...styles.textNumber}}
                   placeholder="Enter quantity ..."
-                  value={valQuantity}
+                  onSubmitEditing={() => {
+                    itemprce.current.focus();
+                  }}
                   keyboardType={'number-pad'}
+                  selectTextOnFocus={true}
+                  value={valQuantity}
+                  textAlign="right"
                   onChangeText={valQuantity => setQuantity(valQuantity)}
                 />
               </View>
               <View style={styles.inputView}>
                 <Text style={styles.inputLabel}>Item Price</Text>
                 <TextInput
+                  ref={itemprce}
                   style={{...styles.textInput, ...styles.textNumber}}
                   placeholder="Enter item price ..."
+                  onSubmitEditing={() => {
+                    othercde.current.focus();
+                  }}
                   keyboardType={'number-pad'}
+                  selectTextOnFocus={true}
                   value={valItemPrce}
+                  textAlign="right"
                   onChangeText={val => setItemPrce(val)}
                 />
               </View>
-            </View>
-
-            <View style={styles.inputView}>
-              <Text style={styles.inputLabel}>Bar Code</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Enter bar code ..."
-                value={valOtherCde}
-                onChangeText={val => setOtherCde(val)}
-              />
-            </View>
-
-            <View style={styles.inputView}>
-              <Text style={styles.inputLabel}>Description</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Enter description ..."
-                value={valDescript}
-                onChangeText={val => setDescript(val)}
-              />
             </View>
             <View style={styles.inputView}>
               <Text style={styles.msgLabel}>{textMessage}</Text>
@@ -153,7 +293,7 @@ export default function ModalSales() {
                       fontFamily: 'Arial',
                       fontSize: 12,
                     }}>
-                    Cancel
+                    Close
                   </Text>
                 </Icon.Button>
 
@@ -175,6 +315,60 @@ export default function ModalSales() {
               </View>
             </View>
           </View>
+        </View>
+
+        <View
+          style={{
+            //backgroundColor: 'blue',
+            top: 330,
+            width: '95%',
+            height: '43%',
+            alignSelf: 'center',
+            paddingBottom: 5,
+          }}>
+          <FlatList
+            data={pickList}
+            renderItem={({item, index}) => (
+              <ItemList item={item} index={index} />
+            )}
+            keyExtractor={item => item.OtherCde}
+            ListHeaderComponent={() => {
+              if (!pickList.length) {
+                return (
+                  <View>
+                    <Text
+                      style={{
+                        color: 'red',
+                        alignSelf: 'center',
+                      }}>
+                      {''}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'red',
+                        alignSelf: 'center',
+                      }}>
+                      No items found.
+                    </Text>
+                  </View>
+                );
+              } else {
+                return (
+                  <View>
+                    <Text
+                      style={{
+                        color: 'yellow',
+                        fontSize: 12,
+                        alignSelf: 'center',
+                      }}>
+                      {pickList.length} items found
+                    </Text>
+                  </View>
+                );
+              }
+              return null;
+            }}
+          />
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -214,6 +408,10 @@ const styles = StyleSheet.create({
   },
   textNumber: {
     width: 165,
+    paddingRight: 10,
+  },
+  textOtherCde: {
+    width: 250,
   },
   textInput: {
     backgroundColor: 'white',
@@ -225,7 +423,8 @@ const styles = StyleSheet.create({
     height: 40, //TextBox height
   },
   msgLabel: {
-    color: 'white',
+    color: 'yellow',
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 
@@ -239,5 +438,39 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: 'white',
     backgroundColor: '#333',
+  },
+
+  // Flatlist items container
+  itemContainer: {
+    borderBottomWidth: 0.8,
+    borderStyle: 'dashed',
+    //borderRadius: 10,
+    borderBottomColor: 'rgba(250,250,250,0.4)',
+    padding: 3,
+    paddingLeft: 5,
+    paddingRight: 5,
+    marginVertical: 2,
+    marginHorizontal: 10,
+    //backgroundColor: 'rgba(250,250,250,0.6)',
+    backgroundColor: '#00000000',
+    //    alignItems: 'center', //centers the delete button
+  },
+  textCodeView: {
+    flexDirection: 'row',
+  },
+  txtOtherCde: {
+    flex: 2,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  textItem: {
+    fontSize: 12,
+    color: 'white',
+  },
+  textDescript: {
+    fontStyle: 'italic',
+    fontSize: 10,
+    color: 'white',
   },
 });

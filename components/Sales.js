@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,7 @@ import Icon from 'react-native-vector-icons/Fontisto';
 import moment from 'moment';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-async function getProduct(product, item) {
-  return await product.filter(data => data.OtherCde.includes(item));
-}
-
-export default function Sales({navigation}) {
+function Sales({navigation}) {
   const {product, setModalOpen, salesDtl} = useContext(UserContext);
   console.log('Rendering Sales component');
 
@@ -65,7 +61,7 @@ export default function Sales({navigation}) {
         <FlatList
           data={salesDtl}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
-          keyExtractor={item => item.OtherCde}
+          keyExtractor={item => item.RecordId}
           ListFooterComponent={() => {
             if (!salesDtl.length) {
               return (
@@ -75,14 +71,14 @@ export default function Sales({navigation}) {
                       color: 'red',
                       alignSelf: 'center',
                     }}>
-                    No items found.
+                    {''}
                   </Text>
                   <Text
                     style={{
                       color: 'red',
                       alignSelf: 'center',
                     }}>
-                    on products.
+                    No sales item found.
                   </Text>
                 </View>
               );
@@ -203,3 +199,5 @@ const styles = StyleSheet.create({
     //backgroundColor: '#333',
   },
 });
+
+export default React.memo(Sales);

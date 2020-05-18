@@ -3,7 +3,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 //import {Icon} from 'react-native-elements';
 
-export default function Header({navigation, title, iconName}) {
+function Header({navigation, title, iconName}) {
   console.log('Rendering Header component');
   return (
     <View>
@@ -56,3 +56,5 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
+
+export default React.memo(Header);

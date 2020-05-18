@@ -15,7 +15,7 @@ import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-export default function Products({navigation}) {
+function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
   let txtSearch = 'GARMIN';
   const dataList = product.filter(
@@ -182,3 +182,5 @@ const styles = StyleSheet.create({
     //backgroundColor: '#333',
   },
 });
+
+export default React.memo(Products);
