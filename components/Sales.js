@@ -109,6 +109,18 @@ function Sales({navigation}) {
             </Icon.Button>
           </TouchableOpacity>
 
+          <TouchableOpacity>
+            <Icon.Button
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'list-1' : 'list-1'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                List
+              </Text>
+            </Icon.Button>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => setModalOpen(true)}>
             <Icon.Button
               style={{color: 'white'}}

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   FlatList,
   SafeAreaView,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import Header from './Header';
 import DateInfo from './DateInfo';
@@ -14,34 +15,54 @@ import CountData from './CountData';
 import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import Highlighter from 'react-native-highlight-words';
+//import AsyncStorage from '@react-native-community/async-storage';
 
 function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
-  let txtSearch = 'GARMIN';
+  const [txtSearch, setTxtSearch] = useState('wpe');
+
   const dataList = product.filter(
     mFile =>
       mFile.Descript.includes(txtSearch) || mFile.OtherCde.includes(txtSearch),
   );
 
   console.log('Rendering Product component');
+  const txtsearch = React.createRef();
+
   function ItemList({item, index}) {
     let nIndex = index + 1;
     let nItemPrce = item.ItemPrce.toFixed(2).replace(
       /\d(?=(\d{3})+\.)/g,
       '$&,',
     );
+
     return (
       <View style={styles.itemContainer}>
         <View style={styles.textCodeView}>
-          <Text style={styles.textOtherCde}>
-            {nIndex.toString().trim()}- Code: {item.OtherCde}
-          </Text>
+          <Highlighter
+            highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+            searchWords={[txtSearch]}
+            textToHighlight={nIndex.toString() + '. Code:' + item.OtherCde}
+            style={styles.textOtherCde}
+            //numberOfLines={1}
+          />
           <Text style={styles.textItem}>Price: {nItemPrce}</Text>
         </View>
-        <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
+        <Highlighter
+          highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+          searchWords={[txtSearch]}
+          textToHighlight={item.Descript.substr(0, 50)}
+          style={styles.textDescript}
+        />
       </View>
     );
   }
+
+  const listProduct = async cSearch => {
+    alert(cSearch);
+    setTxtSearch(cSearch);
+  };
 
   return (
     <>
@@ -105,17 +126,26 @@ function Products({navigation}) {
         />
         <CountData data={dataList} master={product} />
         <View style={styles.bottomMenu}>
-          <TouchableOpacity>
-            <Icon.Button
-              style={{color: 'white'}}
-              size={20}
-              backgroundColor="#00000000"
-              name={Platform.OS === 'android' ? 'search' : 'search'}>
-              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+          <TextInput
+            ref={txtsearch}
+            style={styles.textInput}
+            placeholder="Enter search ..."
+            selectTextOnFocus={true}
+            val={txtSearch}
+            placeholderTextColor="grey"
+            autoCapitalize="characters"
+            onChangeText={val => setTxtSearch(val)}
+          />
+
+          <Icon.Button
+            style={{color: 'white'}}
+            size={20}
+            backgroundColor="#00000000"
+            name={Platform.OS === 'android' ? 'search' : 'search'}>
+            {/* <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
                 Search
-              </Text>
-            </Icon.Button>
-          </TouchableOpacity>
+              </Text> */}
+          </Icon.Button>
         </View>
       </SafeAreaView>
     </>
@@ -180,6 +210,20 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: 'white',
     //backgroundColor: '#333',
+  },
+  textInput: {
+    backgroundColor: '#00000000',
+    color: 'white',
+    paddingLeft: 10,
+    fontSize: 14,
+    width: '70%',
+    height: 40, //TextBox height
+  },
+  headingText: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    color: 'white',
+    // marginBottom: 4
   },
 });
 

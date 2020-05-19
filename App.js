@@ -16,6 +16,7 @@ import Products from './components/Products';
 import Settings from './components/Settings';
 import CustomDrawer from './components/CustomDrawer';
 import UserContext from './components/UserContext';
+//import {insertData} from './components/ConnectDB';
 
 const Drawer = createDrawerNavigator();
 

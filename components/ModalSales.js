@@ -14,6 +14,7 @@ import {
 import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
+import Highlighter from 'react-native-highlight-words';
 //import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function ModalSales() {
@@ -21,11 +22,13 @@ export default function ModalSales() {
     UserContext,
   );
   const [date, setDate] = useState(new Date());
-  const [valQuantity, setQuantity] = useState(1);
+  const [valQuantity, setQuantity] = useState('1');
   const [valOtherCde, setOtherCde] = useState('');
   const [valDescript, setDescript] = useState('');
-  const [valItemPrce, setItemPrce] = useState(0);
+  const [valItemPrce, setItemPrce] = useState('0.00');
+
   const [textMessage, setMessage] = useState('');
+  const [highLightText, sethighLightText] = useState('');
 
   const [pickList, setPickList] = useState([]);
 
@@ -41,7 +44,7 @@ export default function ModalSales() {
   //Search product and generate picklist on setPickList
   const getProduct = () => {
     if (!valOtherCde) {
-      alertMsg('Enter a bar code value');
+      alertMsg('Enter bar code or description to search');
       return;
     }
     if (valOtherCde.length < 5) {
@@ -49,7 +52,11 @@ export default function ModalSales() {
       return;
     }
     let txtSearch = valOtherCde.trim();
-    const dataItem = product.filter(data => data.OtherCde.includes(txtSearch));
+    sethighLightText(txtSearch);
+    const dataItem = product.filter(
+      data =>
+        data.OtherCde.includes(txtSearch) || data.Descript.includes(txtSearch),
+    );
     if (dataItem.length > 0) {
       setOtherCde(dataItem[0].OtherCde);
       setDescript(dataItem[0].Descript);
@@ -147,12 +154,21 @@ export default function ModalSales() {
       <View style={styles.itemContainer}>
         <TouchableOpacity onPress={() => selectFromList(item)}>
           <View style={styles.textCodeView}>
-            <Text style={styles.txtOtherCde}>
-              {nIndex.toString().trim()}- Code: {item.OtherCde}
-            </Text>
+            <Highlighter
+              highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+              searchWords={[highLightText]}
+              textToHighlight={nIndex.toString() + '. Code:' + item.OtherCde}
+              style={styles.txtOtherCde}
+              //numberOfLines={1}
+            />
             <Text style={styles.textItem}>Price: {nItemPrce}</Text>
           </View>
-          <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
+          <Highlighter
+            highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+            searchWords={[highLightText]}
+            textToHighlight={item.Descript.substr(0, 70)}
+            style={styles.textDescript}
+          />
         </TouchableOpacity>
       </View>
     );
@@ -472,5 +488,11 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 10,
     color: 'white',
+  },
+  headingText: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    color: 'white',
+    // marginBottom: 4
   },
 });
