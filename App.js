@@ -24,17 +24,9 @@ export default function App() {
   const [product, setProduct] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [salesDtl, setSalesDtl] = useState([
-    // {
-    //   RecordId: Date.now(),
-    //   Date____: Date(),
-    //   Quantity: 1,
-    //   OtherCde: '123456',
-    //   Descript: 'San Miguel Pale Pilsen',
-    //   ItemPrce: 1200.55,
-    //   Location: '',
-    // },
-  ]);
+  const [salesDtl, setSalesDtl] = useState([]);
+  const [salesDataToEdit, setSalesDataToEdit] = useState([]);
+  const [modalEditOpen, setModalEditOpen] = useState(false);
 
   useEffect(() => {
     console.log('Fetching masterfile');
@@ -43,7 +35,7 @@ export default function App() {
 
   async function getMasterFile() {
     const RNFS = require('react-native-fs');
-    const downloadPath = `${RNFS.DownloadDirectoryPath}/masterfile.json`;
+    const downloadPath = `${RNFS.DownloadDirectoryPath}/DB_JUICES.json`;
 
     try {
       const granted = await PermissionsAndroid.request(
@@ -84,6 +76,10 @@ export default function App() {
         setLoading,
         modalOpen,
         setModalOpen,
+        salesDataToEdit,
+        setSalesDataToEdit,
+        modalEditOpen,
+        setModalEditOpen,
       }}>
       <NavigationContainer>
         <Drawer.Navigator

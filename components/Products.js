@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -20,14 +20,17 @@ import Highlighter from 'react-native-highlight-words';
 
 function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
-  const [txtSearch, setTxtSearch] = useState('wpe');
+  const [txtSearch, setTxtSearch] = useState('WPE');
 
+  txtSearch ? '' : setTxtSearch('WPE'); //clear search when txtSearch =''
   const dataList = product.filter(
     mFile =>
       mFile.Descript.includes(txtSearch) || mFile.OtherCde.includes(txtSearch),
   );
 
-  console.log('Rendering Product component');
+  useEffect(() => {
+    console.log('Rendering Product component');
+  }, []);
   const txtsearch = React.createRef();
 
   function ItemList({item, index}) {
@@ -100,7 +103,7 @@ function Products({navigation}) {
                       color: 'red',
                       alignSelf: 'center',
                     }}>
-                    No items found.
+                    No items loaded
                   </Text>
                   <Text
                     style={{

@@ -5,9 +5,13 @@ const UserContext = React.createContext({
   salesDtl: [],
   isLoading: true,
   modalOpen: false,
+  modalEditOpen: false,
+  salesDataToEdit: [],
   setProduct: () => {},
   setSalesDtl: () => {},
   setLoading: () => {},
   setModalOpen: () => {},
+  setModalEditOpen: () => {},
+  setSalesDataToEdit: () => {},
 });
 export default UserContext;

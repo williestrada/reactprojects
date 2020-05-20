@@ -17,16 +17,31 @@ import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
 //import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function ModalSales() {
-  const {product, setSalesDtl, modalOpen, setModalOpen} = useContext(
-    UserContext,
-  );
+function ModalEditSales() {
+  const {
+    product,
+    setSalesDtl,
+    modalEditOpen,
+    setModalEditOpen,
+    salesDataToEdit,
+  } = useContext(UserContext);
 
-  const [date, setDate] = useState(new Date());
-  const [valQuantity, setQuantity] = useState('1');
-  const [valOtherCde, setOtherCde] = useState('');
-  const [valDescript, setDescript] = useState('');
-  const [valItemPrce, setItemPrce] = useState('0.00');
+  //const [date, setDate] = useState(new Date());
+  // const [valQuantity, setQuantity] = useState('1');
+  // const [valOtherCde, setOtherCde] = useState('');
+  // const [valDescript, setDescript] = useState('');
+  // const [valItemPrce, setItemPrce] = useState('0.00');
+  let date = salesDataToEdit.Date____;
+  let valOtherCde = salesDataToEdit.OtherCde;
+  let valDescript = salesDataToEdit.Descript;
+  let valQuantity =
+    typeof salesDataToEdit.Quantity == 'undefined'
+      ? '1'
+      : salesDataToEdit.Quantity.toString();
+  let valItemPrce =
+    typeof salesDataToEdit.ItemPrce == 'undefined'
+      ? '0.00'
+      : salesDataToEdit.ItemPrce.toString();
 
   const [textMessage, setMessage] = useState('');
   const [highLightText, sethighLightText] = useState('');
@@ -39,10 +54,8 @@ export default function ModalSales() {
   const itemprce = React.createRef();
 
   useEffect(() => {
-    console.log('Rendering Modal Sales ');
+    console.log('Rendering Edit Mode Modal Sales ');
     console.disableYellowBox = true;
-    setQuantity('1');
-    setItemPrce('0.00');
     setPickList([]);
   }, []);
 
@@ -150,11 +163,7 @@ export default function ModalSales() {
       ];
     });
 
-    setOtherCde('');
-    setDescript('');
-    setQuantity('');
-    setItemPrce('');
-    setModalOpen(false);
+    setmodalEditOpen(false);
   };
 
   function ItemList({item, index}) {
@@ -189,7 +198,7 @@ export default function ModalSales() {
   }
 
   return (
-    <Modal visible={modalOpen} animationType="slide" transparent={true}>
+    <Modal visible={modalEditOpen} animationType="slide" transparent={true}>
       <KeyboardAvoidingView
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -229,7 +238,7 @@ export default function ModalSales() {
             </View>
 
             <View style={styles.inputView}>
-              <Text style={styles.inputLabel}>Bar Code</Text>
+              <Text style={styles.inputLabel}>Edit Bar Code</Text>
               <View style={{flexDirection: 'row'}}>
                 <TextInput
                   ref={othercde}
@@ -320,7 +329,7 @@ export default function ModalSales() {
                   style={{color: 'white'}}
                   size={20}
                   backgroundColor="#00000000"
-                  onPress={() => setModalOpen(false)}
+                  onPress={() => setModalEditOpen(false)}
                   name={Platform.OS === 'android' ? 'close' : 'close'}>
                   <Text
                     style={{
@@ -515,3 +524,5 @@ const styles = StyleSheet.create({
     // marginBottom: 4
   },
 });
+
+export default React.memo(ModalEditSales);

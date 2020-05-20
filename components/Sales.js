@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,37 @@ import Header from './Header';
 import DateInfo from './DateInfo';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
+import ModalEditSales from './ModalEditSales';
 import Icon from 'react-native-vector-icons/Fontisto';
 import moment from 'moment';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import Swipeout from 'react-native-swipeout';
 
 function Sales({navigation}) {
-  const {product, setModalOpen, salesDtl} = useContext(UserContext);
-  console.log('Rendering Sales component');
+  const {
+    product,
+    setModalOpen,
+    salesDtl,
+    setSalesDtl,
+    salesDataToEdit,
+    setSalesDataToEdit,
+    setModalEditOpen,
+  } = useContext(UserContext);
+
+  useEffect(() => {
+    console.log('Rendering Sales component');
+  }, []);
+
+  const editItem = item => {
+    setSalesDataToEdit(item);
+    setModalEditOpen(true);
+  };
+
+  const deleteItem = item => {
+    setSalesDtl(prevSales => {
+      return prevSales.filter(val => val.RecordId != item.RecordId);
+    });
+  };
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
@@ -26,30 +50,51 @@ function Sales({navigation}) {
       /\d(?=(\d{3})+\.)/g,
       '$&,',
     );
+
+    var swipeEdit = [
+      {
+        text: 'Edit',
+        backgroundColor: 'blue',
+        onPress: () => editItem(item),
+      },
+    ];
+    var swipeDelete = [
+      {
+        text: 'Delete',
+        backgroundColor: 'red',
+        onPress: () => deleteItem(item),
+      },
+    ];
+
     return (
       <View style={styles.itemContainer}>
-        <View style={styles.textCodeView}>
-          <Text style={styles.textOtherCde}>
-            {nIndex.toString().trim()}- Code: {item.OtherCde}
-          </Text>
-          <Text style={styles.textItem}>Price: {nItemPrce}</Text>
-        </View>
-        <View style={styles.textCodeView}>
-          <Text style={styles.textDate____}>{item.Date____}</Text>
-          <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
-        </View>
-        <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
+        <Swipeout
+          left={swipeEdit}
+          right={swipeDelete}
+          backgroundColor={'#00000000'}
+          sensitivity={70}
+          autoClose={true}>
+          <View style={styles.textCodeView}>
+            <Text style={styles.textOtherCde}>
+              {nIndex.toString().trim()}- Code: {item.OtherCde}
+            </Text>
+            <Text style={styles.textItem}>Price: {nItemPrce}</Text>
+          </View>
+          <View style={styles.textCodeView}>
+            <Text style={styles.textDate____}>{item.Date____}</Text>
+            <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
+          </View>
+          <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
+        </Swipeout>
       </View>
     );
   }
 
-  // const item = getProduct(product, '987654');
-  // alert(item);
   return (
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
       <ModalSales />
-
+      <ModalEditSales />
       <SafeAreaView style={styles.container}>
         <ImageBackground
           source={require('../images/abstract_blue.png')}
@@ -197,7 +242,7 @@ const styles = StyleSheet.create({
   },
   textDescript: {
     fontStyle: 'italic',
-    fontSize: 12,
+    fontSize: 10,
     color: 'white',
   },
 
