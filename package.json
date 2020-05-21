@@ -1,5 +1,5 @@
 {
-  "name": "Retail",
+  "name": "retail",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-datepicker": "^1.7.2",
+    "react-native-device-info": "^5.5.8",
     "react-native-elements": "^2.0.0",
     "react-native-fs": "^2.16.6",
     "react-native-gesture-handler": "^1.6.1",
@@ -42,5 +43,17 @@
   },
   "jest": {
     "preset": "react-native"
-  }
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williestrada/reactprojects.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/williestrada/reactprojects/issues"
+  },
+  "homepage": "https://github.com/williestrada/reactprojects#readme",
+  "description": ""
 }

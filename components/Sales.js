@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 
 import Header from './Header';
@@ -13,17 +14,20 @@ import DateInfo from './DateInfo';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
 import ModalEditSales from './ModalEditSales';
+import {deleteSales} from '../src/RetailAPI';
+
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
-import moment from 'moment';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout';
 
 function Sales({navigation}) {
+  const [currentItem, setCurrentItem] = useState({});
   const {
-    product,
     setModalOpen,
     salesDtl,
     setSalesDtl,
+    isLoading,
     salesDataToEdit,
     setSalesDataToEdit,
     setModalEditOpen,
@@ -31,14 +35,52 @@ function Sales({navigation}) {
 
   useEffect(() => {
     console.log('Rendering Sales component');
+    fetchSales();
   }, []);
 
+  async function fetchSales() {
+    await AsyncStorage.getAllKeys((err, keys) => {
+      AsyncStorage.multiGet(keys, (err, sales) => {
+        const newData = [];
+        sales.map(result => {
+          // get at each key/value so you can work with it
+
+          if (result[0].includes('SALES')) {
+            let key = result[0];
+            let aSales = JSON.parse(result[1]);
+            let RecordId = aSales.RecordId;
+            let Date____ = aSales.Date____;
+            let OtherCde = aSales.OtherCde;
+            let Descript = aSales.Descript;
+            let Quantity = aSales.Quantity;
+            let ItemPrce = aSales.ItemPrce;
+
+            if (!salesDtl.some(d => d.RecordId === key)) {
+              const sale = {
+                RecordId,
+                Date____,
+                OtherCde,
+                Descript,
+                Quantity,
+                ItemPrce,
+              };
+              newData.push(sale);
+            }
+          }
+        });
+        setSalesDtl(salesDtl.concat(newData));
+      });
+    });
+  }
+
   const editItem = item => {
-    setSalesDataToEdit(item);
+    //setSalesDataToEdit(item);
+    setCurrentItem(item);
     setModalEditOpen(true);
   };
 
   const deleteItem = item => {
+    deleteSales(item.RecordId); //RetailAPI
     setSalesDtl(prevSales => {
       return prevSales.filter(val => val.RecordId != item.RecordId);
     });
@@ -54,7 +96,7 @@ function Sales({navigation}) {
     var swipeEdit = [
       {
         text: 'Edit',
-        backgroundColor: 'blue',
+        backgroundColor: 'rgb(0,64,128)',
         onPress: () => editItem(item),
       },
     ];
@@ -94,7 +136,7 @@ function Sales({navigation}) {
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
       <ModalSales />
-      <ModalEditSales />
+      <ModalEditSales currentItem={setCurrentItem} />
       <SafeAreaView style={styles.container}>
         <ImageBackground
           source={require('../images/abstract_blue.png')}
@@ -102,7 +144,14 @@ function Sales({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo />
-        {/* <View style={styles.listSales} /> */}
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          animating={isLoading}
+          hidesWhenStopped={true}
+          style={{height: 0}}
+        />
+
         <FlatList
           data={salesDtl}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
@@ -120,10 +169,10 @@ function Sales({navigation}) {
                   </Text>
                   <Text
                     style={{
-                      color: 'red',
+                      color: 'white',
                       alignSelf: 'center',
                     }}>
-                    No sales item found.
+                    No sales item found
                   </Text>
                 </View>
               );

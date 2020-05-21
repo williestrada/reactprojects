@@ -17,7 +17,10 @@ import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
 //import DateTimePicker from '@react-native-community/datetimepicker';
 
-function ModalEditSales() {
+function ModalEditSales(currentItem) {
+  const txtOtherCde = currentItem.OtherCde;
+  const [valOtherCde, setOtherCde] = useState(txtOtherCde);
+
   const {
     product,
     setSalesDtl,
@@ -28,11 +31,9 @@ function ModalEditSales() {
 
   //const [date, setDate] = useState(new Date());
   // const [valQuantity, setQuantity] = useState('1');
-  // const [valOtherCde, setOtherCde] = useState('');
   // const [valDescript, setDescript] = useState('');
   // const [valItemPrce, setItemPrce] = useState('0.00');
   let date = salesDataToEdit.Date____;
-  let valOtherCde = salesDataToEdit.OtherCde;
   let valDescript = salesDataToEdit.Descript;
   let valQuantity =
     typeof salesDataToEdit.Quantity == 'undefined'

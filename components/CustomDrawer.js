@@ -32,7 +32,7 @@ const callLogOut = () => {
   ]);
 };
 
-const bckgrndColor = 'rgb(0,64,128)';
+const bckgrndColor = 'dimgray';
 function CustomDrawer(props) {
   //alert(props.productData);
   return (

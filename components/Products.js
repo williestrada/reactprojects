@@ -103,14 +103,14 @@ function Products({navigation}) {
                       color: 'red',
                       alignSelf: 'center',
                     }}>
-                    No items loaded
+                    {' '}
                   </Text>
                   <Text
                     style={{
-                      color: 'red',
+                      color: 'white',
                       alignSelf: 'center',
                     }}>
-                    on products.
+                    Search item to list
                   </Text>
                 </View>
               );

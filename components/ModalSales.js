@@ -11,11 +11,13 @@ import {
   FlatList,
   Keyboard,
 } from 'react-native';
-import UserContext from './UserContext';
+
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
-//import DateTimePicker from '@react-native-community/datetimepicker';
+
+import UserContext from './UserContext';
+import {saveSales} from '../src/RetailAPI';
 
 export default function ModalSales() {
   const {product, setSalesDtl, modalOpen, setModalOpen} = useContext(
@@ -137,17 +139,17 @@ export default function ModalSales() {
     setSalesDtl(prevSales => {
       alertMsg('Data is saved.');
       let cRecordId = Date.now();
-      return [
-        ...prevSales,
-        {
-          RecordId: cRecordId,
-          Date____: dDate____,
-          Quantity: Number(valQuantity),
-          OtherCde: valOtherCde,
-          Descript: valDescript,
-          ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
-        },
-      ];
+      let aSales = {
+        RecordId: cRecordId,
+        Date____: dDate____,
+        Quantity: Number(valQuantity),
+        OtherCde: valOtherCde,
+        Descript: valDescript,
+        ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+      };
+
+      saveSales(aSales); //RetailAPI
+      return [...prevSales, aSales];
     });
 
     setOtherCde('');
