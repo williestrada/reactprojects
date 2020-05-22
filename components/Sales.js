@@ -7,14 +7,16 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import Header from './Header';
 import DateInfo from './DateInfo';
+import CountData from './CountData';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
 import ModalEditSales from './ModalEditSales';
-import {deleteSales} from '../src/RetailAPI';
+import {deleteSales, salesToCSV} from '../src/RetailAPI';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
@@ -29,6 +31,8 @@ function Sales({navigation}) {
     setSalesDtl,
     isLoading,
     salesDataToEdit,
+    totalSales,
+    setTotalSales,
     setSalesDataToEdit,
     setModalEditOpen,
   } = useContext(UserContext);
@@ -42,6 +46,7 @@ function Sales({navigation}) {
     await AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, sales) => {
         const newData = [];
+        let ntotalSales = 0;
         sales.map(result => {
           // get at each key/value so you can work with it
 
@@ -54,8 +59,11 @@ function Sales({navigation}) {
             let Descript = aSales.Descript;
             let Quantity = aSales.Quantity;
             let ItemPrce = aSales.ItemPrce;
+            let Location = aSales.Location;
+            let DeviceId = aSales.DeviceId;
 
             if (!salesDtl.some(d => d.RecordId === key)) {
+              ntotalSales += Quantity * ItemPrce;
               const sale = {
                 RecordId,
                 Date____,
@@ -63,12 +71,15 @@ function Sales({navigation}) {
                 Descript,
                 Quantity,
                 ItemPrce,
+                Location,
+                DeviceId,
               };
               newData.push(sale);
             }
           }
         });
         setSalesDtl(salesDtl.concat(newData));
+        setTotalSales(ntotalSales); //CountData
       });
     });
   }
@@ -80,10 +91,23 @@ function Sales({navigation}) {
   };
 
   const deleteItem = item => {
+    let ntotalSales = item.Quantity * item.ItemPrce;
+    setTotalSales(totalSales - ntotalSales); //CountData
     deleteSales(item.RecordId); //RetailAPI
     setSalesDtl(prevSales => {
       return prevSales.filter(val => val.RecordId != item.RecordId);
     });
+  };
+
+  const saveSalesHandler = data => {
+    Alert.alert('Save', 'Save sales data to CSV?', [
+      {
+        text: 'No',
+        onPress: () => null,
+        style: 'cancel',
+      },
+      {text: 'YES', onPress: () => salesToCSV(data)},
+    ]);
   };
 
   function ItemList({item, index}) {
@@ -92,7 +116,9 @@ function Sales({navigation}) {
       /\d(?=(\d{3})+\.)/g,
       '$&,',
     );
-
+    let nAmount__ = (item.Quantity * item.ItemPrce)
+      .toFixed(2)
+      .replace(/\d(?=(\d{3})+\.)/g, '$&,');
     var swipeEdit = [
       {
         text: 'Edit',
@@ -118,13 +144,16 @@ function Sales({navigation}) {
           autoClose={true}>
           <View style={styles.textCodeView}>
             <Text style={styles.textOtherCde}>
-              {nIndex.toString().trim()}- Code: {item.OtherCde}
+              {nIndex.toString().trim()}- # {item.OtherCde}
             </Text>
-            <Text style={styles.textItem}>Price: {nItemPrce}</Text>
+            <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
+            <Text style={styles.textItem}>
+              {'   '}Price: {nItemPrce}
+            </Text>
           </View>
           <View style={styles.textCodeView}>
             <Text style={styles.textDate____}>{item.Date____}</Text>
-            <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
+            <Text style={styles.textItem}>Amount.: {nAmount__}</Text>
           </View>
           <Text style={styles.textDescript}>{item.Descript.substr(0, 50)}</Text>
         </Swipeout>
@@ -189,9 +218,13 @@ function Sales({navigation}) {
             return null;
           }}
         />
-
+        <CountData
+          data1={salesDtl.length}
+          label2={'Total Sales='}
+          data2={totalSales.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}
+        />
         <View style={styles.bottomMenu}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => saveSalesHandler(salesDtl)}>
             <Icon.Button
               style={{color: 'white'}}
               size={20}

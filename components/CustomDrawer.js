@@ -18,13 +18,13 @@ const callAbout = props => {
   //alert('About');
 };
 const callLogOut = () => {
-  Alert.alert('OOPS!', 'Log out from InfoPlus?', [
+  Alert.alert('OOPS!', 'Exit InfoPlus?', [
     {
       text: 'No',
       onPress: () => '',
     },
     {
-      text: 'Understood',
+      text: 'Yes',
       onPress: () => {
         Platform.OS === 'android' ? BackHandler.exitApp() : exit(9);
       },
@@ -82,7 +82,7 @@ function CustomDrawer(props) {
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Icon name="log-out" size={26} color="white" />
           <DrawerItem
-            label="Log out"
+            label="Exit"
             labelStyle={{color: 'white', fontWeight: 'bold'}}
             onPress={() => callLogOut()}
           />

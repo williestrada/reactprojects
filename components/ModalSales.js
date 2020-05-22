@@ -15,14 +15,20 @@ import {
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
+import DeviceInfo from 'react-native-device-info';
 
 import UserContext from './UserContext';
 import {saveSales} from '../src/RetailAPI';
 
 export default function ModalSales() {
-  const {product, setSalesDtl, modalOpen, setModalOpen} = useContext(
-    UserContext,
-  );
+  const {
+    product,
+    setSalesDtl,
+    modalOpen,
+    setModalOpen,
+    totalSales,
+    setTotalSales,
+  } = useContext(UserContext);
 
   const [date, setDate] = useState(new Date());
   const [valQuantity, setQuantity] = useState('1');
@@ -43,6 +49,7 @@ export default function ModalSales() {
   useEffect(() => {
     console.log('Rendering Modal Sales ');
     console.disableYellowBox = true;
+
     setQuantity('1');
     setItemPrce('0.00');
     setPickList([]);
@@ -107,6 +114,7 @@ export default function ModalSales() {
   };
 
   const saveSalesData = () => {
+    const deviceId = DeviceInfo.getDeviceId();
     let dDate____ =
       typeof date == 'object'
         ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
@@ -136,6 +144,9 @@ export default function ModalSales() {
 
     //setTimeout(() => flat_ref.scrollToEnd(), 200);
 
+    let ntotalSales = Number(valQuantity) * Number(valItemPrce);
+    setTotalSales(totalSales + ntotalSales); //CountData
+
     setSalesDtl(prevSales => {
       alertMsg('Data is saved.');
       let cRecordId = Date.now();
@@ -146,6 +157,8 @@ export default function ModalSales() {
         OtherCde: valOtherCde,
         Descript: valDescript,
         ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+        Location: '',
+        DeviceId: deviceId,
       };
 
       saveSales(aSales); //RetailAPI

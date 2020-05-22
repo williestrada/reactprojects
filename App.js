@@ -4,6 +4,7 @@ import {
   Platform,
   Alert,
   PermissionsAndroid,
+  BackHandler,
   ActivityIndicator,
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
@@ -27,10 +28,29 @@ export default function App() {
   const [salesDtl, setSalesDtl] = useState([]);
   const [salesDataToEdit, setSalesDataToEdit] = useState([]);
   const [modalEditOpen, setModalEditOpen] = useState(false);
+  const [totalSales, setTotalSales] = useState(0); //Just for CountData
 
   useEffect(() => {
     console.log('Fetching masterfile');
     getMasterFile();
+    const backAction = () => {
+      Alert.alert('Hold on!', 'Do you want to exit InfoPlus?', [
+        {
+          text: 'No',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {text: 'YES', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
   }, []);
 
   async function getMasterFile() {
@@ -80,6 +100,8 @@ export default function App() {
         setSalesDataToEdit,
         modalEditOpen,
         setModalEditOpen,
+        totalSales,
+        setTotalSales,
       }}>
       <NavigationContainer>
         <Drawer.Navigator

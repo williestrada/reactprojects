@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import Header from './Header';
 import DateInfo from './DateInfo';
@@ -21,11 +22,14 @@ import Highlighter from 'react-native-highlight-words';
 function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
   const [txtSearch, setTxtSearch] = useState('WPE');
+  const [iconSearch, setIconSearch] = useState('search');
+  const [labelSearch, setLabelSearch] = useState('Search');
 
   txtSearch ? '' : setTxtSearch('WPE'); //clear search when txtSearch =''
   const dataList = product.filter(
     mFile =>
-      mFile.Descript.includes(txtSearch) || mFile.OtherCde.includes(txtSearch),
+      mFile.Descript.toLowerCase().includes(txtSearch.toLowerCase()) ||
+      mFile.OtherCde.toLowerCase().includes(txtSearch.toLowerCase()),
   );
 
   useEffect(() => {
@@ -63,10 +67,21 @@ function Products({navigation}) {
   }
 
   const listProduct = async cSearch => {
-    alert(cSearch);
+    !cSearch ? setIconSearch('search') : setIconSearch('close');
+    !cSearch ? setLabelSearch('Search') : setLabelSearch('Clear');
     setTxtSearch(cSearch);
   };
 
+  const clearSearch = () => {
+    if (txtSearch.length > 0) {
+      setIconSearch('search');
+      setLabelSearch('Search');
+      txtsearch.current.clear(); //tsk, clear TextInput
+      Keyboard.dismiss();
+    } else {
+      setLabelSearch('Clear');
+    }
+  };
   return (
     <>
       <Header
@@ -127,7 +142,7 @@ function Products({navigation}) {
             return null;
           }}
         />
-        <CountData data={dataList} master={product} />
+        <CountData data1={dataList.length} data2={product.length} />
         <View style={styles.bottomMenu}>
           <TextInput
             ref={txtsearch}
@@ -136,18 +151,19 @@ function Products({navigation}) {
             selectTextOnFocus={true}
             val={txtSearch}
             placeholderTextColor="grey"
-            autoCapitalize="characters"
-            onChangeText={val => setTxtSearch(val)}
+            // autoCapitalize="characters"
+            onChangeText={val => listProduct(val)}
           />
 
           <Icon.Button
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
-            name={Platform.OS === 'android' ? 'search' : 'search'}>
-            {/* <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
-                Search
-              </Text> */}
+            onPress={() => clearSearch()}
+            name={Platform.OS === 'android' ? iconSearch : iconSearch}>
+            <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+              {labelSearch}
+            </Text>
           </Icon.Button>
         </View>
       </SafeAreaView>
