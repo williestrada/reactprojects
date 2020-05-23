@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,12 @@ import {
   ScrollView,
   TextInput,
   Keyboard,
+  Alert,
 } from 'react-native';
 
 import Header from './Header';
+//import {getSettings} from '../src/RetailAPI';
+
 import Icon from 'react-native-vector-icons/Fontisto';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -20,7 +23,56 @@ export default function Settings({navigation}) {
   const [valUserName, setUserName] = useState('');
   const [valMastFile, setMastFile] = useState('');
   const deviceId = DeviceInfo.getDeviceId();
-  console.log('Rendering Settings component');
+  //const phoneNum = DeviceInfo.getModel();
+
+  //reference to textinput fields
+  const location = React.createRef();
+  const username = React.createRef();
+  const mastfile = React.createRef();
+
+  useEffect(() => {
+    console.log('Rendering Settings component');
+    getSettings();
+  }, []);
+
+  const getSettings = async () => {
+    const aSettings = await AsyncStorage.getItem('SETUP');
+    if (aSettings != null) {
+      JSON.parse(aSettings).map(setup => {
+        setLocation(setup.Location);
+        setUserName(setup.UserName);
+        setMastFile(setup.MastFile);
+      });
+    }
+  };
+
+  const saveSettings = async () => {
+    if (valLocation.length < 4 || valLocation == 'undefined') {
+      alert('Store name must have minimum of 4 and maximum of 10 chars');
+      location.current.focus();
+      return;
+    }
+    if (valUserName.length < 4 || valUserName == 'undefined') {
+      alert('User name must have minimum of 4 and maximum of 10 chars');
+      username.current.focus();
+      return;
+    }
+    if (valMastFile.length < 10 || valMastFile == 'undefined') {
+    }
+    await AsyncStorage.setItem(
+      'SETUP',
+      JSON.stringify([
+        {
+          Location: valLocation,
+          UserName: valUserName,
+          MastFile: valMastFile,
+        },
+      ]),
+    )
+      .then(alert('Settings data is saved'))
+      .catch(err => alert(err));
+    Keyboard.dismiss();
+  };
 
   return (
     <>
@@ -39,15 +91,18 @@ export default function Settings({navigation}) {
           <View
             style={{
               flexDirection: 'row',
-              paddingTop: 10,
               alignItems: 'center',
             }}>
             <Text style={styles.text}>Store: </Text>
             <TextInput
+              ref={location}
               style={{...styles.textInput, ...styles.textStore}}
               placeholder="store name..."
               autoCapitalize="characters"
               maxLength={10}
+              onSubmitEditing={() => {
+                username.current.focus();
+              }}
               value={valLocation}
               onChangeText={val => setLocation(val)}
             />
@@ -64,10 +119,14 @@ export default function Settings({navigation}) {
             }}>
             <Text style={styles.text}>User Name: </Text>
             <TextInput
+              ref={username}
               style={{...styles.textInput, ...styles.textStore}}
               placeholder="user name..."
               autoCapitalize="characters"
               maxLength={10}
+              onSubmitEditing={() => {
+                mastfile.current.focus();
+              }}
               value={valUserName}
               onChangeText={val => setUserName(val)}
             />
@@ -98,13 +157,14 @@ export default function Settings({navigation}) {
             }}>
             <Text style={styles.text}>Masterfile: </Text>
             <TextInput
+              ref={mastfile}
               style={{...styles.textInput, ...styles.textMastFile}}
               placeholder="masterfile..."
               value={valMastFile}
               onChangeText={val => setMastFile(val)}
             />
           </View>
-          <Text style={{color: 'white'}}>
+          {/* <Text style={{color: 'white'}}>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -112,14 +172,14 @@ export default function Settings({navigation}) {
             reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
             pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
             culpa qui officia deserunt mollit anim id est laborum.
-          </Text>
+          </Text> */}
         </ScrollView>
         <View style={styles.bottomMenu}>
           <Icon.Button
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
-            onPress={() => ''}
+            onPress={() => saveSettings()}
             name={Platform.OS === 'android' ? 'save' : 'save'}>
             <Text
               style={{
@@ -153,7 +213,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     backgroundColor: '#00000000',
-    marginHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,.4)',
+    //    marginHorizontal: 10,
+    padding: 10,
   },
   textItem: {
     fontSize: 12,

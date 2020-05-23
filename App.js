@@ -1,22 +1,21 @@
 import React, {useEffect, useState} from 'react';
 
-import {
-  Platform,
-  Alert,
-  PermissionsAndroid,
-  BackHandler,
-  ActivityIndicator,
-} from 'react-native';
+import {Platform, PermissionsAndroid} from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Feather';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNFS from 'react-native-fs';
 
 import Sales from './components/Sales';
+import Count from './components/Count';
 import Products from './components/Products';
 import Settings from './components/Settings';
 import CustomDrawer from './components/CustomDrawer';
 import UserContext from './components/UserContext';
+import {getSettings} from './src/RetailAPI';
+import AsyncStorage from '@react-native-community/async-storage';
+import {set} from 'react-native-reanimated';
 //import {insertData} from './components/ConnectDB';
 
 const Drawer = createDrawerNavigator();
@@ -33,29 +32,22 @@ export default function App() {
   useEffect(() => {
     console.log('Fetching masterfile');
     getMasterFile();
-    const backAction = () => {
-      Alert.alert('Hold on!', 'Do you want to exit InfoPlus?', [
-        {
-          text: 'No',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {text: 'YES', onPress: () => BackHandler.exitApp()},
-      ]);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-
-    return () => backHandler.remove();
   }, []);
 
   async function getMasterFile() {
+    let cMastFile = '';
+    let objSetup = await AsyncStorage.getItem('SETUP');
+    if (objSetup == null) return;
+    JSON.parse(objSetup).map(setup => {
+      cMastFile = setup.MastFile.trim();
+    });
+    if (!cMastFile) return; //allow use without masterfile
+
     const RNFS = require('react-native-fs');
-    const downloadPath = `${RNFS.DownloadDirectoryPath}/DB_JUICES.json`;
+    //const downloadPath = `${RNFS.DownloadDirectoryPath}/db_juices.json`;
+
+    const downloadPath = RNFS.DownloadDirectoryPath + '/' + cMastFile;
+    console.log(downloadPath);
 
     try {
       const granted = await PermissionsAndroid.request(
@@ -68,7 +60,7 @@ export default function App() {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         const newData = [];
         const masterData = await RNFS.readFile(downloadPath, 'utf8');
-        const updatedMasterData = JSON.parse(masterData).map(mFile => {
+        JSON.parse(masterData).map(mFile => {
           if (true) {
             let OtherCde = mFile.OtherCde;
             let Descript = mFile.Descript;
@@ -116,7 +108,23 @@ export default function App() {
             component={Sales}
             options={{
               drawerIcon: config => (
-                <Icon
+                <MaterialComIcon
+                  size={23}
+                  name={
+                    Platform.OS === 'android'
+                      ? 'cash-register'
+                      : 'cash-register'
+                  }
+                />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Count"
+            component={Count}
+            options={{
+              drawerIcon: config => (
+                <FeatherIcon
                   size={23}
                   name={Platform.OS === 'android' ? 'home' : 'home'}
                 />
@@ -128,7 +136,7 @@ export default function App() {
             component={Products}
             options={{
               drawerIcon: config => (
-                <Icon
+                <FeatherIcon
                   size={23}
                   name={
                     Platform.OS === 'android'
@@ -144,7 +152,7 @@ export default function App() {
             component={Settings}
             options={{
               drawerIcon: config => (
-                <Icon
+                <FeatherIcon
                   size={23}
                   name={Platform.OS === 'android' ? 'settings' : 'settings'}
                 />

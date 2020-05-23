@@ -20,7 +20,7 @@ import DeviceInfo from 'react-native-device-info';
 import UserContext from './UserContext';
 import {saveSales} from '../src/RetailAPI';
 
-export default function ModalSales() {
+function ModalSales({storName = ''}) {
   const {
     product,
     setSalesDtl,
@@ -113,14 +113,14 @@ export default function ModalSales() {
     setMessage(msg);
   };
 
-  const saveSalesData = () => {
+  const saveSalesData = storName => {
     const deviceId = DeviceInfo.getDeviceId();
     let dDate____ =
       typeof date == 'object'
         ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
         : date.substr(0, 16);
     let cRecordId = Date.now();
-    let cLocation = '';
+    let cLocation = storName;
 
     if (valOtherCde == 0 || valOtherCde == 'undefined') {
       alertMsg('Pls. enter bar code');
@@ -142,8 +142,6 @@ export default function ModalSales() {
       return;
     }
 
-    //setTimeout(() => flat_ref.scrollToEnd(), 200);
-
     let ntotalSales = Number(valQuantity) * Number(valItemPrce);
     setTotalSales(totalSales + ntotalSales); //CountData
 
@@ -157,7 +155,7 @@ export default function ModalSales() {
         OtherCde: valOtherCde,
         Descript: valDescript,
         ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
-        Location: '',
+        Location: storName,
         DeviceId: deviceId,
       };
 
@@ -351,7 +349,7 @@ export default function ModalSales() {
                   style={{color: 'white'}}
                   size={20}
                   backgroundColor="#00000000"
-                  onPress={() => saveSalesData()}
+                  onPress={() => saveSalesData(storName)}
                   name={Platform.OS === 'android' ? 'save' : 'save'}>
                   <Text
                     style={{
@@ -530,3 +528,5 @@ const styles = StyleSheet.create({
     // marginBottom: 4
   },
 });
+
+export default React.memo(ModalSales);

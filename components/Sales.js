@@ -8,6 +8,7 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  BackHandler,
 } from 'react-native';
 
 import Header from './Header';
@@ -25,11 +26,13 @@ import Swipeout from 'react-native-swipeout';
 
 function Sales({navigation}) {
   const [currentItem, setCurrentItem] = useState({});
+  const [storName, setStorName] = useState('');
   const {
     setModalOpen,
     salesDtl,
     setSalesDtl,
     isLoading,
+    setLoading,
     salesDataToEdit,
     totalSales,
     setTotalSales,
@@ -39,7 +42,26 @@ function Sales({navigation}) {
 
   useEffect(() => {
     console.log('Rendering Sales component');
+    storeName(); //show store name on top <DateInfo />
     fetchSales();
+    const backAction = () => {
+      Alert.alert('Hold on!', 'Do you want to exit InfoPlus?', [
+        {
+          text: 'No',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {text: 'YES', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
   }, []);
 
   async function fetchSales() {
@@ -80,9 +102,20 @@ function Sales({navigation}) {
         });
         setSalesDtl(salesDtl.concat(newData));
         setTotalSales(ntotalSales); //CountData
+        setLoading(false);
       });
     });
   }
+
+  const storeName = async () => {
+    let objSetUp = await AsyncStorage.getItem('SETUP');
+    if (objSetUp == null) return;
+    let cLocation = '';
+    await JSON.parse(objSetUp).map(setup => {
+      cLocation = setup.Location.trim();
+    });
+    setStorName(cLocation);
+  };
 
   const editItem = item => {
     //setSalesDataToEdit(item);
@@ -99,7 +132,23 @@ function Sales({navigation}) {
     });
   };
 
-  const saveSalesHandler = data => {
+  const addSalesData = async () => {
+    let objSetUp = await AsyncStorage.getItem('SETUP');
+    if (objSetUp == null)
+      return alert('Pls. set store and user names in Settings');
+    let cLocation = '';
+    let cUserName = '';
+    await JSON.parse(objSetUp).map(setup => {
+      cLocation = setup.Location.trim();
+      cUserName = setup.UserName.trim();
+    });
+
+    if (!cLocation) return alert('Pls. set Store name in Settings');
+    if (!cUserName) return alert('Pls. set User name in Settings');
+    setModalOpen(true);
+  };
+
+  const saveSalesHandler = async data => {
     Alert.alert('Save', 'Save sales data to CSV?', [
       {
         text: 'No',
@@ -139,12 +188,12 @@ function Sales({navigation}) {
         <Swipeout
           left={swipeEdit}
           right={swipeDelete}
-          backgroundColor={'#00000000'}
+          backgroundColor={'rgba(0,0,0,.3)'}
           sensitivity={70}
           autoClose={true}>
           <View style={styles.textCodeView}>
             <Text style={styles.textOtherCde}>
-              {nIndex.toString().trim()}- # {item.OtherCde}
+              {nIndex.toString().trim()}. # {item.OtherCde}
             </Text>
             <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
             <Text style={styles.textItem}>
@@ -164,7 +213,14 @@ function Sales({navigation}) {
   return (
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
-      <ModalSales />
+      <ModalSales storName={storName} />
+      <ActivityIndicator
+        size="large"
+        color="#0000ff"
+        animating={isLoading}
+        hidesWhenStopped={true}
+        style={{height: 0}}
+      />
       <ModalEditSales currentItem={setCurrentItem} />
       <SafeAreaView style={styles.container}>
         <ImageBackground
@@ -172,7 +228,7 @@ function Sales({navigation}) {
           style={styles.imgBackground}
           imageStyle={styles.imgStyle}
         />
-        <DateInfo />
+        <DateInfo storName={storName} />
         <ActivityIndicator
           size="large"
           color="#0000ff"
@@ -236,7 +292,7 @@ function Sales({navigation}) {
             </Icon.Button>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => AsyncStorage.removeItem('SETUP')}>
             <Icon.Button
               style={{color: 'white'}}
               size={20}
@@ -248,7 +304,7 @@ function Sales({navigation}) {
             </Icon.Button>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setModalOpen(true)}>
+          <TouchableOpacity onPress={() => addSalesData()}>
             <Icon.Button
               style={{color: 'white'}}
               size={20}

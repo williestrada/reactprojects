@@ -2,9 +2,19 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import moment from 'moment';
 
-export default function DateInfo() {
+export default function DateInfo({storName = ''}) {
   return (
     <View style={styles.viewDate}>
+      <Text
+        style={{
+          fontSize: 12,
+          fontFamily: 'serif',
+          color: 'white',
+          paddingLeft: 10,
+          fontStyle: 'italic',
+        }}>
+        {storName}
+      </Text>
       <Text style={styles.txtDate}>
         {' '}
         {moment()

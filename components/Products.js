@@ -50,7 +50,7 @@ function Products({navigation}) {
           <Highlighter
             highlightStyle={{fontWeight: 'bold', color: 'orange'}}
             searchWords={[txtSearch]}
-            textToHighlight={nIndex.toString() + '. Code:' + item.OtherCde}
+            textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
             style={styles.textOtherCde}
             //numberOfLines={1}
           />
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     marginVertical: 2,
     marginHorizontal: 10,
-    //backgroundColor: 'rgba(250,250,250,0.6)',
-    backgroundColor: '#00000000',
+    backgroundColor: 'rgba(0,0,0,.3)',
+    //backgroundColor: '#00000000',
     //    alignItems: 'center', //centers the delete button
   },
   textCodeView: {
