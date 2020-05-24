@@ -41,7 +41,7 @@ export default function App() {
     JSON.parse(objSetup).map(setup => {
       cMastFile = setup.MastFile.trim();
     });
-    if (!cMastFile) return; //allow use without masterfile
+    if (!cMastFile) return; //allow EVEN without masterfile
 
     const RNFS = require('react-native-fs');
     //const downloadPath = `${RNFS.DownloadDirectoryPath}/db_juices.json`;

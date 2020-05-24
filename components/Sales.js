@@ -168,17 +168,24 @@ function Sales({navigation}) {
     let nAmount__ = (item.Quantity * item.ItemPrce)
       .toFixed(2)
       .replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    var swipeEdit = [
+
+    // var swipeEdit = [
+    //   {
+    //     text: 'Edit',
+    //     backgroundColor: 'rgb(0,64,128)',
+    //     onPress: () => '',
+    //   },
+    // ];
+    var swipeDelete = [
       {
         text: 'Edit',
         backgroundColor: 'rgb(0,64,128)',
-        onPress: () => editItem(item),
+        onPress: () => '',
       },
-    ];
-    var swipeDelete = [
       {
-        text: 'Delete',
+        text: 'Del',
         backgroundColor: 'red',
+        width: 10,
         onPress: () => deleteItem(item),
       },
     ];
@@ -186,7 +193,7 @@ function Sales({navigation}) {
     return (
       <View style={styles.itemContainer}>
         <Swipeout
-          left={swipeEdit}
+          // left={swipeEdit}
           right={swipeDelete}
           backgroundColor={'rgba(0,0,0,.3)'}
           sensitivity={70}

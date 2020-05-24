@@ -17,6 +17,7 @@ import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Highlighter from 'react-native-highlight-words';
+import AsyncStorage from '@react-native-community/async-storage';
 //import AsyncStorage from '@react-native-community/async-storage';
 
 function Products({navigation}) {
@@ -24,6 +25,7 @@ function Products({navigation}) {
   const [txtSearch, setTxtSearch] = useState('WPE');
   const [iconSearch, setIconSearch] = useState('search');
   const [labelSearch, setLabelSearch] = useState('Search');
+  const [mfName, setMfName] = useState(''); //display at DateInfo
 
   txtSearch ? '' : setTxtSearch('WPE'); //clear search when txtSearch =''
   const dataList = product.filter(
@@ -34,8 +36,19 @@ function Products({navigation}) {
 
   useEffect(() => {
     console.log('Rendering Product component');
+    masterFile(); //get masterfile name
   }, []);
   const txtsearch = React.createRef();
+
+  const masterFile = async () => {
+    let objSetUp = await AsyncStorage.getItem('SETUP');
+    if (objSetUp == null) return;
+    let cMastFile = '';
+    await JSON.parse(objSetUp).map(setup => {
+      cMastFile = setup.MastFile.trim();
+    });
+    setMfName(cMastFile);
+  };
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
@@ -96,7 +109,7 @@ function Products({navigation}) {
           style={styles.imgBackground}
           imageStyle={styles.imgStyle}
         />
-        <DateInfo />
+        <DateInfo storName={mfName} />
         <ActivityIndicator
           size="large"
           color="#0000ff"

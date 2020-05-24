@@ -17,6 +17,7 @@ import Header from './Header';
 import Icon from 'react-native-vector-icons/Fontisto';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
+import DocumentPicker from 'react-native-document-picker';
 
 export default function Settings({navigation}) {
   const [valLocation, setLocation] = useState('');
@@ -46,6 +47,24 @@ export default function Settings({navigation}) {
     }
   };
 
+  const SingleFilePicker = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        //options .allFiles .images .audio .pdf .plainText
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      setMastFile(res.name);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        setMastFile('');
+      } else {
+        Alert.alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
+
   const saveSettings = async () => {
     if (valLocation.length < 4 || valLocation == 'undefined') {
       alert('Store name must have minimum of 4 and maximum of 10 chars');
@@ -69,7 +88,13 @@ export default function Settings({navigation}) {
         },
       ]),
     )
-      .then(alert('Settings data is saved'))
+      .then(
+        alert(
+          'Settings data is saved' +
+            '\n\n' +
+            'Exit and run Retail for changes to effect.',
+        ),
+      )
       .catch(err => alert(err));
     Keyboard.dismiss();
   };
@@ -163,7 +188,28 @@ export default function Settings({navigation}) {
               value={valMastFile}
               onChangeText={val => setMastFile(val)}
             />
+            <Icon.Button
+              style={{
+                color: 'white',
+                borderWidth: 1,
+                borderColor: 'white',
+                borderRadius: 8,
+                //                width: 100,
+              }}
+              size={20}
+              backgroundColor="#333"
+              onPress={() => SingleFilePicker()}
+              name={Platform.OS === 'android' ? 'search' : 'search'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                Select
+              </Text>
+            </Icon.Button>
           </View>
+          <Text //Line
+            style={styles.line}>
+            {' '}
+          </Text>
+
           {/* <Text style={{color: 'white'}}>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
@@ -225,7 +271,8 @@ const styles = StyleSheet.create({
     width: 120,
   },
   textMastFile: {
-    width: 200,
+    marginRight: 10,
+    width: 150,
   },
   textInput: {
     backgroundColor: 'rgba(250,250,250,.7)',

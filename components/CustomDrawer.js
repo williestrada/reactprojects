@@ -14,22 +14,6 @@ const logo = require('../images/InfoPlus.png');
 
 const callAbout = props => {
   props.navigation.closeDrawer();
-
-  //alert('About');
-};
-const callLogOut = () => {
-  Alert.alert('OOPS!', 'Exit InfoPlus?', [
-    {
-      text: 'No',
-      onPress: () => '',
-    },
-    {
-      text: 'Yes',
-      onPress: () => {
-        Platform.OS === 'android' ? BackHandler.exitApp() : exit(9);
-      },
-    },
-  ]);
 };
 
 const bckgrndColor = 'dimgray';
@@ -84,7 +68,9 @@ function CustomDrawer(props) {
           <DrawerItem
             label="Exit"
             labelStyle={{color: 'white', fontWeight: 'bold'}}
-            onPress={() => callLogOut()}
+            onPress={() =>
+              Platform.OS === 'android' ? BackHandler.exitApp() : exit(9)
+            }
           />
         </View>
       </View>
@@ -96,8 +82,6 @@ function CustomDrawer(props) {
   /* <DrawerItems {...this.props}  activeTintColor='#2196f3' activeBackgroundColor='rgba(0, 0, 0, .04)' inactiveTintColor='rgba(0, 0, 0, .87)' inactiveBackgroundColor='transparent' style={{backgroundColor: '#000000'}} labelStyle={{color: '#ffffff'}}/> */
 }
 
-export default CustomDrawer;
-
 const styles = StyleSheet.create({
   drawerItemList: {
     height: 380,
@@ -108,3 +92,5 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
   },
 });
+
+export default React.memo(CustomDrawer);
