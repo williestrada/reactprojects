@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
 import Header from './Header';
 import DateInfo from './DateInfo';
 import CountData from './CountData';
+import UserContext from './UserContext';
 
 import Icon from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -23,6 +24,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Highlighter from 'react-native-highlight-words';
 
 export default function Count({navigation}) {
+  const {product, isLoading, setLoading} = useContext(UserContext);
+  const [prodSearch, setProdSearch] = useState('WPE');
+  prodSearch ? '' : setProdSearch('WPE'); //clear search when prodSearch =''
+  const dataList = product.filter(
+    mFile =>
+      mFile.Descript.toLowerCase().includes(prodSearch.toLowerCase()) ||
+      mFile.OtherCde.toLowerCase().includes(prodSearch.toLowerCase()),
+  );
+
+  const [showProdList, setShowProdList] = useState(0);
+
   const [valOtherCde, setOtherCde] = useState('');
   const [txtSearch, setTxtSearch] = useState('WPE');
   const [countDtl, setCountDtl] = useState([
@@ -48,13 +60,55 @@ export default function Count({navigation}) {
     storeName(); //show store name on top <DateInfo />
   }, []);
 
+  const handlerSearchOtherCde = val => {
+    setOtherCde(val);
+    setProdSearch(val);
+  };
+
+  function ProdList({item, index}) {
+    let nIndex = index + 1;
+    let nItemPrce = item.ItemPrce.toFixed(2).replace(
+      /\d(?=(\d{3})+\.)/g,
+      '$&,',
+    );
+
+    return (
+      <View style={styles.itemContainer}>
+        <TouchableOpacity onPress={() => setShowProdList(0)}>
+          <View style={styles.textCodeView}>
+            <Highlighter
+              highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+              searchWords={[prodSearch]}
+              textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
+              style={styles.textOtherCde}
+              //numberOfLines={1}
+            />
+            <Text style={styles.textItem}>Price: {nItemPrce}</Text>
+          </View>
+          <Highlighter
+            highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+            searchWords={[prodSearch]}
+            textToHighlight={item.Descript.substr(0, 50)}
+            style={styles.textDescript}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   function ItemList({item, index}) {
     let nIndex = index + 1;
     let nItemPrce = item.ItemPrce.toFixed(2).replace(
       /\d(?=(\d{3})+\.)/g,
       '$&,',
     );
-    const [valQuantity, setQuantity] = useState(Number(item.Quantity) || 0);
+    // const [valQuantity, setQuantity] = useState(Number(item.Quantity) || 0);
+    const [valQuantity, setQuantity] = useState(item.Quantity.toString() || 0);
+
+    const checkCount = val => {
+      if (Number(val) < 1) return null;
+      setQuantity(val);
+    };
 
     return (
       <View style={styles.itemContainer}>
@@ -87,8 +141,8 @@ export default function Count({navigation}) {
             }}>
             <TouchableOpacity
               onPress={() => {
-                const newQuantity = valQuantity - 1;
-                setQuantity(newQuantity);
+                const newQuantity = Number(valQuantity) - 1;
+                checkCount(newQuantity.toString()); //prevent negative
               }}
               style={{
                 height: 34,
@@ -114,7 +168,9 @@ export default function Count({navigation}) {
                 height: 40,
                 borderWidth: 0.5,
                 color: 'white',
-                fontSize: 12,
+                fontSize: 14,
+                marginLeft: 6,
+                marginRight: 6,
                 textAlign: 'center',
                 alignItems: 'center',
                 borderColor: 'rgba(255,255,255,.7)',
@@ -122,13 +178,14 @@ export default function Count({navigation}) {
               keyboardType="numeric"
               maxLength={6}
               value={valQuantity}
-              onChangeText={val => setQuantity(val)}
+              selectTextOnFocus={true}
+              onChangeText={val => checkCount(val)}
             />
 
             <TouchableOpacity
               onPress={() => {
-                const newQuantity = valQuantity + 1;
-                setQuantity(newQuantity);
+                const newQuantity = Number(valQuantity) + 1;
+                setQuantity(newQuantity.toString());
               }}
               style={{
                 height: 34,
@@ -188,35 +245,68 @@ export default function Count({navigation}) {
             autoCapitalize="characters"
             maxLength={20}
             value={valOtherCde}
-            onChangeText={val => setOtherCde(val)}
+            onChangeText={val => handlerSearchOtherCde(val)}
           />
         </View>
         <Text //Line
           style={styles.line}>
           {' '}
         </Text>
-        <FlatList
-          data={countDtl}
-          renderItem={({item, index}) => <ItemList item={item} index={index} />}
-          keyExtractor={item => item.OtherCde}
-          ListFooterComponent={() => {
-            if (countDtl.length) {
-              return (
-                <View>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 12,
-                      alignSelf: 'center',
-                    }}>
-                    End of list.
-                  </Text>
-                </View>
-              );
-            }
-            return null;
-          }}
-        />
+        <View style={{flex: 1}}>
+          {/* Product View List */}
+          <View style={{height: showProdList}}>
+            <FlatList
+              data={dataList}
+              renderItem={({item, index}) => (
+                <ProdList item={item} index={index} />
+              )}
+              keyExtractor={item => item.OtherCde}
+              ListFooterComponent={() => {
+                if (dataList.length) {
+                  return (
+                    <View>
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: 12,
+                          alignSelf: 'center',
+                        }}>
+                        End of Product list.
+                      </Text>
+                    </View>
+                  );
+                }
+                return null;
+              }}
+            />
+          </View>
+
+          {/* Count List */}
+          <FlatList
+            data={countDtl}
+            renderItem={({item, index}) => (
+              <ItemList item={item} index={index} />
+            )}
+            keyExtractor={item => item.OtherCde}
+            ListFooterComponent={() => {
+              if (countDtl.length) {
+                return (
+                  <View>
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: 12,
+                        alignSelf: 'center',
+                      }}>
+                      End of list.
+                    </Text>
+                  </View>
+                );
+              }
+              return null;
+            }}
+          />
+        </View>
         <CountData data1={countDtl.length} label2={'Total Count= '} data2={0} />
 
         <View style={styles.bottomMenu}>
@@ -224,7 +314,7 @@ export default function Count({navigation}) {
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
-            onPress={() => ''}
+            onPress={() => setShowProdList(400)}
             name={Platform.OS === 'android' ? 'export' : 'export'}>
             <Text
               style={{

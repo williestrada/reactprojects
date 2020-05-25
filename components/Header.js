@@ -25,7 +25,8 @@ function Header({navigation, title, iconName}) {
   );
 }
 
-let bckgrndColor = 'rgb(0,64,128)';
+// let bckgrndColor = 'rgb(0,64,128)';
+let bckgrndColor = 'rgba(0,0,0,.9)';
 
 const styles = StyleSheet.create({
   // Header
@@ -35,6 +36,7 @@ const styles = StyleSheet.create({
     padding: 3,
     justifyContent: 'space-evenly',
     alignItems: 'center',
+    height: 40,
   },
   imgLogo: {
     marginLeft: 0,
