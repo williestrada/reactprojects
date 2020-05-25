@@ -193,7 +193,6 @@ function Sales({navigation}) {
     return (
       <View style={styles.itemContainer}>
         <Swipeout
-          // left={swipeEdit}
           right={swipeDelete}
           backgroundColor={'rgba(0,0,0,.3)'}
           sensitivity={70}

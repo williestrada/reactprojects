@@ -7,9 +7,17 @@ export async function deleteSales(item) {
   await AsyncStorage.removeItem('SALES' + item);
 }
 
+export async function deleteCount(item) {
+  await AsyncStorage.removeItem('COUNT' + item);
+}
+
 export async function saveSales(aSales) {
   let RecordId = aSales.RecordId;
   await AsyncStorage.setItem('SALES' + RecordId, JSON.stringify(aSales));
+}
+export async function saveCount(aCount) {
+  let RecordId = aCount.RecordId;
+  await AsyncStorage.setItem('COUNT' + RecordId, JSON.stringify(aCount));
 }
 
 export async function csvToJSON(csv) {
