@@ -135,7 +135,7 @@ function Sales({navigation}) {
   const addSalesData = async () => {
     let objSetUp = await AsyncStorage.getItem('SETUP');
     if (objSetUp == null)
-      return alert('Pls. set store and user names in Settings');
+      return alert('Pls. set store and user name in Settings');
     let cLocation = '';
     let cUserName = '';
     await JSON.parse(objSetUp).map(setup => {
@@ -169,13 +169,6 @@ function Sales({navigation}) {
       .toFixed(2)
       .replace(/\d(?=(\d{3})+\.)/g, '$&,');
 
-    // var swipeEdit = [
-    //   {
-    //     text: 'Edit',
-    //     backgroundColor: 'rgb(0,64,128)',
-    //     onPress: () => '',
-    //   },
-    // ];
     var swipeDelete = [
       {
         text: 'Edit',

@@ -59,6 +59,51 @@ export const getSettings = async prop => {
   }
 };
 
+export async function countToCSV(aCount = null) {
+  if (aCount === null || !aCount.length) {
+    alert('There are no items to export.');
+    return null;
+  }
+
+  let csvHeader =
+    'RecordId,Date____,OtherCde,Descript,Quantity,Location,UserName,DeviceId' +
+    '\r\n';
+  let csvStr = '';
+  let csvData = '';
+
+  aCount.map(count => {
+    let RecordId = count.RecordId;
+    let Date____ = count.Date____;
+    let OtherCde = count.OtherCde;
+    let Descript = count.Descript.replace(/,|_/g, ';'); //remove commas in text field
+    let Quantity = count.Quantity;
+    let Location = count.Location;
+    let UserName = count.UserName;
+    let DeviceId = count.DeviceId;
+    let Is_Saved = count.Is_Saved;
+    csvStr +=
+      RecordId +
+      ',' +
+      Date____ +
+      ',' +
+      OtherCde +
+      ',' +
+      Descript +
+      ',' +
+      Quantity +
+      ',' +
+      Location +
+      ',' +
+      UserName +
+      ',' +
+      DeviceId +
+      ',' +
+      '\r\n';
+  });
+  csvData = csvHeader + csvStr;
+  await exportToCSV(csvData, 'Count');
+}
+
 export async function salesToCSV(aSales = null) {
   if (aSales === null || !aSales.length) {
     alert('There are no items to export.');
