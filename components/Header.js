@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-//import {Icon} from 'react-native-elements';
+import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function Header({navigation, title, iconName}) {
   console.log('Rendering Header component');

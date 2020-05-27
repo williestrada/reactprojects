@@ -5,7 +5,6 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import RNFS from 'react-native-fs';
 
 import Sales from './components/Sales';
 import Count from './components/Count';
@@ -13,7 +12,6 @@ import Products from './components/Products';
 import Settings from './components/Settings';
 import CustomDrawer from './components/CustomDrawer';
 import UserContext from './components/UserContext';
-import {getSettings} from './src/RetailAPI';
 import AsyncStorage from '@react-native-community/async-storage';
 import {set} from 'react-native-reanimated';
 //import {insertData} from './components/ConnectDB';
@@ -124,9 +122,9 @@ export default function App() {
             component={Count}
             options={{
               drawerIcon: config => (
-                <FeatherIcon
+                <MaterialComIcon
                   size={23}
-                  name={Platform.OS === 'android' ? 'home' : 'home'}
+                  name={Platform.OS === 'android' ? 'numeric' : 'numeric'}
                 />
               ),
             }}

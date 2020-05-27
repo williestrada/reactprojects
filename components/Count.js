@@ -11,17 +11,19 @@ import {
   Keyboard,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import Header from './Header';
 import DateInfo from './DateInfo';
 import CountData from './CountData';
 import UserContext from './UserContext';
+import ModalQuantity from './ModalQuantity';
+
 import {saveCount, deleteCount, countToCSV} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
-import Material from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {Icon} from 'react-native-elements';
 
@@ -52,8 +54,11 @@ export default function Count({navigation}) {
   const [storName, setStorName] = useState('');
   const [barScannerOn, setBarScannerOn] = useState(false);
   const [getSettings, setGetSettings] = useState(['', '']);
-  const [isSavedColor, setIsSavedColor] = useState('rgba(250,250,250,.3)');
+  const [modalQtyOpen, setModalQtyOpen] = useState(false);
 
+  const [countItem, setCountItem] = useState([]);
+
+  const [unSavedData, setUnSavedData] = useState(0);
   const deviceId = DeviceInfo.getDeviceId();
   const othercde = React.createRef();
 
@@ -124,10 +129,10 @@ export default function Count({navigation}) {
 
   //TextInput OtherCde onChange()
   const handlerSearchOtherCde = val => {
+    // if (1 == 1) return null;
     setOtherCde(val);
     setProdSearch(val); //filters items on Product picklist
     othercde.current.focus();
-    //    othercde.current.clear();
   };
 
   //Add button menu click
@@ -203,30 +208,15 @@ export default function Count({navigation}) {
     });
   };
 
-  const editCountData = (item, index, editedQty) => {
-    let key = item.RecordId;
-    let nQuantity = Number(editedQty);
-    let newCount = {
-      RecordId: item.RecordId,
-      OtherCde: item.OtherCde,
-      Descript: item.Descript,
-      Quantity: nQuantity,
-      Date____: item.Date____,
-      Location: item.Location,
-      UserName: item.UserName,
-      DeviceId: item.DeviceId,
-      Is_Saved: true,
-    };
-
-    saveCount(newCount); //RetailAPI
-    const newCountDtl = countDtl.map(data =>
-      data.RecordId === key
-        ? {...data, Quantity: nQuantity, Is_Saved: true}
-        : data,
-    );
-    setCountDtl(newCountDtl);
-    // countDtl[index].Is_Saved = true;
-  };
+  // const calcSaved = () => {
+  //   let nCtr = 0;
+  //   countDtl.forEach(data => {
+  //     if (!data.Is_Saved) {
+  //       nCtr++;
+  //     }
+  //   });
+  //   setUnSavedData(nCtr);
+  // };
 
   const saveCountHandler = async data => {
     Alert.alert('Save', 'Save count data to CSV?', [
@@ -241,18 +231,11 @@ export default function Count({navigation}) {
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
-    const [valQuantity, setQuantity] = useState(item.Quantity.toString() || 0);
-    //const [isDataSaved, setIsDataSaved] = useState();
+    //const [valQuantity, setQuantity] = useState(item.Quantity.toString() || 0);
 
     useEffect(() => {
-      console.log(nIndex + ' ' + item.Is_Saved + ' Rendering Count Flatlist');
-    }, [valQuantity]);
-
-    const checkCount = val => {
-      if (Number(val) < 1) return null;
-      setQuantity(val);
-      countDtl[index].Is_Saved = false;
-    };
+      console.log(nIndex + ' Rendering Count Flatlist');
+    }, []);
 
     const swipeDelete = [
       {
@@ -263,9 +246,6 @@ export default function Count({navigation}) {
       },
     ];
 
-    let isSavedColor = countDtl[index].Is_Saved
-      ? 'rgba(255,255,255,.2)'
-      : 'white';
     return (
       <View style={styles.itemContainer}>
         <Swipeout
@@ -274,134 +254,140 @@ export default function Count({navigation}) {
           sensitivity={70}
           buttonWidth={100}
           autoClose={true}>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-              <View style={styles.textCodeView}>
+          <TouchableOpacity
+            onPress={() => {
+              setCountItem(item);
+              setModalQtyOpen(true);
+            }}>
+            <View style={{flexDirection: 'row'}}>
+              <View style={{flex: 1}}>
+                <View style={styles.textCodeView}>
+                  <Highlighter
+                    highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+                    searchWords={[txtSearch]}
+                    textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
+                    style={styles.textOtherCde}
+                  />
+                </View>
                 <Highlighter
                   highlightStyle={{fontWeight: 'bold', color: 'orange'}}
                   searchWords={[txtSearch]}
-                  textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
-                  style={styles.textOtherCde}
+                  textToHighlight={item.Descript.substr(0, 50)}
+                  style={styles.textDescript}
                 />
               </View>
-              <Highlighter
-                highlightStyle={{fontWeight: 'bold', color: 'orange'}}
-                searchWords={[txtSearch]}
-                textToHighlight={item.Descript.substr(0, 50)}
-                style={styles.textDescript}
-              />
-            </View>
 
-            {/* Right Panel + - buttons */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                //backgroundColor: 'yellow',
-              }}>
-              {/* <Text style={{color: 'yellow'}}>{valQuantity}</Text> */}
-              <TouchableOpacity
-                onPress={() => {
-                  const newQuantity = Number(valQuantity) - 1;
-                  checkCount(newQuantity.toString()); //prevent negative
-                }}
+              {/* Right Panel + - buttons */}
+              <View
                 style={{
-                  height: 34,
-                  width: 34,
-                  justifyContent: 'center',
+                  flexDirection: 'row',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(0,0,0,.6)',
                 }}>
-                <View
+                {/* <TouchableOpacity
+                  onPress={() => {
+                    const newQuantity = Number(valQuantity) - 1;
+                    checkCount(newQuantity.toString()); //prevent negative
+                  }}
                   style={{
-                    height: 28,
-                    width: 28,
-                    borderRadius: 28,
-                    backgroundColor: 'red',
+                    height: 34,
+                    width: 34,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Material
-                    type="MaterialCommunityIcons"
-                    name="minus"
-                    size={20}
-                    color="white"
-                  />
-                </View>
-              </TouchableOpacity>
-              <TextInput
-                style={{
-                  width: 46,
-                  height: 40,
-                  borderWidth: 0.5,
-                  color: 'white',
-                  fontSize: 14,
-                  marginLeft: 4,
-                  marginRight: 4,
-                  textAlign: 'center',
-                  alignItems: 'center',
-                  borderColor: 'rgba(255,255,255,.7)',
-                }}
-                keyboardType="numeric"
-                maxLength={6}
-                value={valQuantity}
-                selectTextOnFocus={true}
-                onChangeText={val => checkCount(val)}
-              />
+                  <View
+                    style={{
+                      height: 28,
+                      width: 28,
+                      borderRadius: 28,
+                      backgroundColor: 'red',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Material
+                      type="MaterialCommunityIcons"
+                      name="minus"
+                      size={20}
+                      color="white"
+                    />
+                  </View>
+                </TouchableOpacity> */}
 
-              <TouchableOpacity
-                onPress={() => {
-                  const newQuantity = Number(valQuantity) + 1;
-                  setQuantity(newQuantity.toString());
-                  checkCount(newQuantity.toString());
-                }}
-                style={{
-                  height: 34,
-                  width: 34,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <View
+                <Text
                   style={{
-                    height: 28,
-                    width: 28,
-                    borderRadius: 28,
-                    backgroundColor: '#4CD995',
+                    width: 46,
+                    height: 40,
+                    borderWidth: 0.5,
+                    color: 'white',
+                    fontSize: 14,
+                    marginLeft: 4,
+                    marginRight: 4,
+                    textAlign: 'center',
+                    paddingTop: 10,
+                    borderColor: 'rgba(255,255,255,.7)',
+                  }}>
+                  {item.Quantity}
+                  {/* // keyboardType="numeric"
+                  // maxLength={6}
+                  // value={valQuantity}
+                  // selectTextOnFocus={true}
+                  // onChangeText={val => checkCount(val)} */}
+                </Text>
+
+                {/* <TouchableOpacity
+                  onPress={() => {
+                    const newQuantity = Number(valQuantity) + 1;
+                    checkCount(newQuantity.toString());
+                  }}
+                  style={{
+                    height: 34,
+                    width: 34,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Material
-                    type="MaterialCommunityIcons"
-                    name="plus"
-                    size={20}
-                    color="white"
-                  />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  editCountData(item, index, valQuantity);
-                }}
-                style={{
-                  height: 34,
-                  width: 34,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <View
+                  <View
+                    style={{
+                      height: 28,
+                      width: 28,
+                      borderRadius: 28,
+                      backgroundColor: '#4CD995',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Material
+                      type="MaterialCommunityIcons"
+                      name="plus"
+                      size={20}
+                      color="white"
+                    />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    editCountData(item, index, valQuantity);
+                  }}
                   style={{
-                    height: 28,
-                    width: 28,
-                    paddingLeft: 6,
-                    paddingRight: 0,
+                    height: 34,
+                    width: 34,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Fontisto name="save" size={22} color={isSavedColor} />
-                </View>
-              </TouchableOpacity>
+                  <View
+                    style={{
+                      height: 28,
+                      width: 28,
+                      paddingLeft: 6,
+                      paddingRight: 0,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Fontisto name="save" size={22} color={isSavedQtyColor} />
+                  </View>
+                </TouchableOpacity> */}
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </Swipeout>
       </View>
     );
@@ -440,9 +426,19 @@ export default function Count({navigation}) {
   }
 
   let scannerColor = barScannerOn ? 'white' : 'black';
+
   return (
     <>
       <Header navigation={navigation} title={'Count'} iconName={'settings'} />
+      <ModalQuantity
+        key={countItem.RecordId}
+        countItem={countItem}
+        countDtl={countDtl}
+        setCountDtl={setCountDtl}
+        setModalQtyOpen={setModalQtyOpen}
+        modalQtyOpen={modalQtyOpen}
+      />
+
       <SafeAreaView style={styles.container}>
         <ImageBackground
           source={require('../images/abstract_dark_red2.png')}
@@ -564,7 +560,11 @@ export default function Count({navigation}) {
             />
           </View>
         </ScrollView>
-        <CountData data1={countDtl.length} label2={'Total Count= '} data2={0} />
+        <CountData
+          data1={countDtl.length}
+          // label2={'Unsaved= '}
+          // data2={unSavedData}
+        />
 
         <View style={styles.bottomMenu}>
           <Fontisto.Button
@@ -581,22 +581,6 @@ export default function Count({navigation}) {
                 fontSize: 12,
               }}>
               Export
-            </Text>
-          </Fontisto.Button>
-          <Fontisto.Button
-            type="Fontisto"
-            style={{color: {isSavedColor}}}
-            size={20}
-            backgroundColor="#00000000"
-            onPress={() => ''}
-            name={Platform.OS === 'android' ? 'save' : 'save'}>
-            <Text
-              style={{
-                color: 'white',
-                fontFamily: 'Arial',
-                fontSize: 12,
-              }}>
-              Save
             </Text>
           </Fontisto.Button>
           <Entypo.Button

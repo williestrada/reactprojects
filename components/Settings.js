@@ -14,7 +14,7 @@ import {
 import Header from './Header';
 //import {getSettings} from '../src/RetailAPI';
 
-import Icon from 'react-native-vector-icons/Fontisto';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 import DocumentPicker from 'react-native-document-picker';
@@ -188,7 +188,7 @@ export default function Settings({navigation}) {
               value={valMastFile}
               onChangeText={val => setMastFile(val)}
             />
-            <Icon.Button
+            <Fontisto.Button
               style={{
                 color: 'white',
                 borderWidth: 1,
@@ -203,7 +203,7 @@ export default function Settings({navigation}) {
               <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
                 Select
               </Text>
-            </Icon.Button>
+            </Fontisto.Button>
           </View>
           <Text //Line
             style={styles.line}>
@@ -221,7 +221,7 @@ export default function Settings({navigation}) {
           </Text> */}
         </ScrollView>
         <View style={styles.bottomMenu}>
-          <Icon.Button
+          <Fontisto.Button
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
@@ -235,7 +235,7 @@ export default function Settings({navigation}) {
               }}>
               Save
             </Text>
-          </Icon.Button>
+          </Fontisto.Button>
         </View>
       </SafeAreaView>
     </>
