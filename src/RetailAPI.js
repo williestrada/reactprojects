@@ -3,6 +3,10 @@ import {Alert, PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 
+export function delay(ms) {
+  return new Promise((resolve, reject) => setTimeout(resolve, ms));
+}
+
 export async function deleteSales(item) {
   await AsyncStorage.removeItem('SALES' + item);
 }

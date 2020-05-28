@@ -12,37 +12,32 @@ import {
   Keyboard,
 } from 'react-native';
 import UserContext from './UserContext';
+import {saveSales} from '../src/RetailAPI';
+
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
 //import DateTimePicker from '@react-native-community/datetimepicker';
 
-function ModalEditSales(currentItem) {
-  const txtOtherCde = currentItem.OtherCde;
-  const [valOtherCde, setOtherCde] = useState(txtOtherCde);
-
+function ModalEditSales() {
   const {
     product,
     setSalesDtl,
     modalEditOpen,
     setModalEditOpen,
-    salesDataToEdit,
+    totalSales,
+    setTotalSales,
+    salesDtl,
+    salesItem,
   } = useContext(UserContext);
 
-  //const [date, setDate] = useState(new Date());
-  // const [valQuantity, setQuantity] = useState('1');
-  // const [valDescript, setDescript] = useState('');
-  // const [valItemPrce, setItemPrce] = useState('0.00');
-  let date = salesDataToEdit.Date____;
-  let valDescript = salesDataToEdit.Descript;
-  let valQuantity =
-    typeof salesDataToEdit.Quantity == 'undefined'
-      ? '1'
-      : salesDataToEdit.Quantity.toString();
-  let valItemPrce =
-    typeof salesDataToEdit.ItemPrce == 'undefined'
-      ? '0.00'
-      : salesDataToEdit.ItemPrce.toString();
+  if (typeof salesItem.Quantity == 'undefined') return null; //omg thanks to null return
+
+  const [date, setDate] = useState(salesItem.Date____);
+  const [valOtherCde, setOtherCde] = useState(salesItem.OtherCde);
+  const [valDescript, setDescript] = useState(salesItem.Descript);
+  const [valQuantity, setQuantity] = useState(salesItem.Quantity.toString());
+  const [valItemPrce, setItemPrce] = useState(salesItem.ItemPrce.toString());
 
   const [textMessage, setMessage] = useState('');
   const [highLightText, sethighLightText] = useState('');
@@ -118,55 +113,6 @@ function ModalEditSales(currentItem) {
     setMessage(msg);
   };
 
-  const saveSalesData = () => {
-    let dDate____ =
-      typeof date == 'object'
-        ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
-        : date.substr(0, 16);
-    let cRecordId = Date.now();
-    let cLocation = '';
-
-    if (valOtherCde == 0 || valOtherCde == 'undefined') {
-      alertMsg('Pls. enter bar code');
-      return;
-    }
-    if (valDescript == '' || valDescript == 'undefined') {
-      alertMsg('Pls. enter description');
-      descript.current.focus();
-      return;
-    }
-    if (valQuantity == 0 || valQuantity == 'undefined') {
-      alertMsg('Pls. enter quantity');
-      quantity.current.focus();
-      return;
-    }
-    if (valItemPrce == 0) {
-      alertMsg('Pls. enter item price');
-      itemprce.current.focus();
-      return;
-    }
-
-    //setTimeout(() => flat_ref.scrollToEnd(), 200);
-
-    setSalesDtl(prevSales => {
-      alertMsg('Data is saved.');
-      let cRecordId = Date.now();
-      return [
-        ...prevSales,
-        {
-          RecordId: cRecordId,
-          Date____: dDate____,
-          Quantity: Number(valQuantity),
-          OtherCde: valOtherCde,
-          Descript: valDescript,
-          ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
-        },
-      ];
-    });
-
-    setmodalEditOpen(false);
-  };
-
   function ItemList({item, index}) {
     let nIndex = index + 1;
     let nItemPrce = item.ItemPrce.toFixed(2).replace(
@@ -197,6 +143,72 @@ function ModalEditSales(currentItem) {
       </View>
     );
   }
+
+  const calcTotalSales = () => {
+    let nTotal = 0;
+    salesDtl.forEach(data => {
+      nTotal += data.Quantity * data.ItemPrce;
+    });
+    setTotalSales(nTotal);
+  };
+
+  const editSalesData = item => {
+    if (valOtherCde == 0 || valOtherCde == 'undefined') {
+      alertMsg('Pls. enter bar code');
+      return;
+    }
+    if (valDescript == '' || valDescript == 'undefined') {
+      alertMsg('Pls. enter description');
+      descript.current.focus();
+      return;
+    }
+    if (valQuantity == 0 || valQuantity == 'undefined') {
+      alertMsg('Pls. enter quantity');
+      quantity.current.focus();
+      return;
+    }
+    if (valItemPrce == 0) {
+      alertMsg('Pls. enter item price');
+      itemprce.current.focus();
+      return;
+    }
+
+    alertMsg('Data is saved.');
+
+    let key = item.RecordId;
+    let aSales = {
+      RecordId: item.RecordId,
+      OtherCde: valOtherCde,
+      Descript: valDescript,
+      Quantity: Number(valQuantity),
+      ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+      Date____: date,
+      Location: item.Location,
+      DeviceId: item.DeviceId,
+    };
+
+    saveSales(aSales); //RetailAPI
+
+    const newSalesDtl = salesDtl.map(data =>
+      data.RecordId === key
+        ? {
+            ...data,
+            Date____: date,
+            OtherCde: valOtherCde,
+            Descript: valDescript,
+            Quantity: Number(valQuantity),
+            ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+          }
+        : data,
+    );
+    setSalesDtl(newSalesDtl);
+    setModalEditOpen(false);
+    setTotalSales(
+      totalSales -
+        item.Quantity * item.ItemPrce +
+        Number(valQuantity) * Number(valItemPrce),
+    );
+  };
 
   return (
     <Modal visible={modalEditOpen} animationType="slide" transparent={true}>
@@ -346,7 +358,7 @@ function ModalEditSales(currentItem) {
                   style={{color: 'white'}}
                   size={20}
                   backgroundColor="#00000000"
-                  onPress={() => saveSalesData()}
+                  onPress={() => editSalesData(salesItem)}
                   name={Platform.OS === 'android' ? 'save' : 'save'}>
                   <Text
                     style={{

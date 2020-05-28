@@ -11,7 +11,6 @@ import {
   Keyboard,
   Alert,
   ScrollView,
-  KeyboardAvoidingView,
 } from 'react-native';
 
 import Header from './Header';
@@ -35,7 +34,7 @@ import Swipeout from 'react-native-swipeout';
 import moment from 'moment';
 
 export default function Count({navigation}) {
-  const {product, isLoading, setLoading} = useContext(UserContext);
+  const {product} = useContext(UserContext);
   const [prodSearch, setProdSearch] = useState('WPE');
   prodSearch ? '' : setProdSearch('WPE'); //clear search when prodSearch =''
 
@@ -48,18 +47,19 @@ export default function Count({navigation}) {
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
   const [showCounList, setShowCounList] = useState(400);
 
+  const [countDtl, setCountDtl] = useState([]);
+  const [countItem, setCountItem] = useState([]);
+
   const [valOtherCde, setOtherCde] = useState('');
   const [txtSearch, setTxtSearch] = useState('WPE');
-  const [countDtl, setCountDtl] = useState([]);
   const [storName, setStorName] = useState('');
   const [barScannerOn, setBarScannerOn] = useState(false);
   const [getSettings, setGetSettings] = useState(['', '']);
   const [modalQtyOpen, setModalQtyOpen] = useState(false);
 
-  const [countItem, setCountItem] = useState([]);
-
-  const [unSavedData, setUnSavedData] = useState(0);
+  const [totalQty, setTotalQty] = useState(0);
   const deviceId = DeviceInfo.getDeviceId();
+
   const othercde = React.createRef();
 
   useEffect(() => {
@@ -67,7 +67,6 @@ export default function Count({navigation}) {
     fetchCount();
     getSettingsData();
     setStorName(getSettings[0]);
-    //storeName(); //show store name on top <DateInfo />
   }, []);
 
   const getSettingsData = async () => {
@@ -106,7 +105,7 @@ export default function Count({navigation}) {
             let Is_Saved = aCount.Is_Saved;
 
             if (!countDtl.some(d => d.RecordId === key)) {
-              // ntotalCount += Quantity * ItemPrce;
+              ntotalCount += Quantity;
               const data = {
                 RecordId,
                 OtherCde,
@@ -123,6 +122,7 @@ export default function Count({navigation}) {
           }
         });
         setCountDtl(countDtl.concat(newData));
+        setTotalQty(ntotalCount);
       });
     });
   }
@@ -196,6 +196,7 @@ export default function Count({navigation}) {
       return [...prevCount, newCount];
     });
 
+    setTotalQty(totalQty + 1);
     setShowProdList(0);
     setShowCounList(400);
     setOtherCde('');
@@ -207,16 +208,6 @@ export default function Count({navigation}) {
       return prevCount.filter(data => data.RecordId != item.RecordId);
     });
   };
-
-  // const calcSaved = () => {
-  //   let nCtr = 0;
-  //   countDtl.forEach(data => {
-  //     if (!data.Is_Saved) {
-  //       nCtr++;
-  //     }
-  //   });
-  //   setUnSavedData(nCtr);
-  // };
 
   const saveCountHandler = async data => {
     Alert.alert('Save', 'Save count data to CSV?', [
@@ -268,6 +259,7 @@ export default function Count({navigation}) {
                     textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
                     style={styles.textOtherCde}
                   />
+                  <Text style={styles.textDescript}>{item.Date____}</Text>
                 </View>
                 <Highlighter
                   highlightStyle={{fontWeight: 'bold', color: 'orange'}}
@@ -435,8 +427,10 @@ export default function Count({navigation}) {
         countItem={countItem}
         countDtl={countDtl}
         setCountDtl={setCountDtl}
-        setModalQtyOpen={setModalQtyOpen}
         modalQtyOpen={modalQtyOpen}
+        setModalQtyOpen={setModalQtyOpen}
+        totalQty={totalQty}
+        setTotalQty={setTotalQty}
       />
 
       <SafeAreaView style={styles.container}>
@@ -562,8 +556,8 @@ export default function Count({navigation}) {
         </ScrollView>
         <CountData
           data1={countDtl.length}
-          // label2={'Unsaved= '}
-          // data2={unSavedData}
+          label2={'Total Qty.= '}
+          data2={totalQty}
         />
 
         <View style={styles.bottomMenu}>
@@ -680,6 +674,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 10,
     color: 'white',
+    paddingRight: 5,
   },
 
   bottomMenu: {

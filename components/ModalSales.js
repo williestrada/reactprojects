@@ -20,7 +20,7 @@ import DeviceInfo from 'react-native-device-info';
 import UserContext from './UserContext';
 import {saveSales} from '../src/RetailAPI';
 
-function ModalSales({storName = ''}) {
+function ModalSales({storName = '', editMode}) {
   const {
     product,
     setSalesDtl,
@@ -28,13 +28,23 @@ function ModalSales({storName = ''}) {
     setModalOpen,
     totalSales,
     setTotalSales,
+    salesItem,
+    setSalesItem,
   } = useContext(UserContext);
 
-  const [date, setDate] = useState(new Date());
-  const [valQuantity, setQuantity] = useState('1');
-  const [valOtherCde, setOtherCde] = useState('');
-  const [valDescript, setDescript] = useState('');
-  const [valItemPrce, setItemPrce] = useState('0.00');
+  if (typeof salesItem.Quantity == 'undefined' && editMode) return null; //omg thanks to null return
+
+  const dDate____ = !editMode ? new Date() : salesItem.Date____;
+  const cOtherCde = !editMode ? '' : salesItem.OtherCde;
+  const cDescript = !editMode ? '' : salesItem.Descript;
+  const nQuantity = !editMode ? '1' : salesItem.Quantity.toString();
+  const nItemPrce = !editMode ? '0.00' : salesItem.ItemPrce.toString();
+
+  const [date, setDate] = useState(dDate____);
+  const [valOtherCde, setOtherCde] = useState(cOtherCde);
+  const [valDescript, setDescript] = useState(cDescript);
+  const [valQuantity, setQuantity] = useState(nQuantity);
+  const [valItemPrce, setItemPrce] = useState(nItemPrce);
 
   const [textMessage, setMessage] = useState('');
   const [highLightText, sethighLightText] = useState('');

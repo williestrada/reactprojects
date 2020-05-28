@@ -1,11 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   Modal,
-  KeyboardAvoidingView,
   TouchableOpacity,
 } from 'react-native';
 
@@ -21,8 +20,27 @@ export default function ModalQuantity({
   setModalQtyOpen,
   countDtl,
   setCountDtl,
+  totalQty,
+  setTotalQty,
 }) {
-  const [valQuantity, setQuantity] = useState(countItem.Quantity || 1);
+  //const {countItem} = useContext(UserContext);
+
+  if (typeof countItem.Quantity == 'undefined') return null; //omg thanks to null return
+  const [valQuantity, setQuantity] = useState(
+    countItem.Quantity.toString() || 1,
+  );
+
+  useEffect(() => {
+    console.log('Rendering ModalQuantity module');
+  }, []);
+
+  const calcTotalQty = () => {
+    let nTotal = 0;
+    countDtl.forEach(data => {
+      nTotal += data.Quantity;
+    });
+    setTotalQty(nTotal);
+  };
 
   //When Quantity Changes
   const editCountData = (item, editedQty) => {
@@ -47,10 +65,9 @@ export default function ModalQuantity({
         : data,
     );
     setCountDtl(newCountDtl);
+    //calcTotalQty();
+    setTotalQty(totalQty - item.Quantity + nQuantity);
   };
-  useEffect(() => {
-    setQuantity(countItem.Quantity);
-  }, []);
 
   const checkCount = val => {
     if (Number(val) < 1) return null;
@@ -109,7 +126,7 @@ export default function ModalQuantity({
             value={valQuantity}
             autoFocus={true}
             onSubmitEditing={() => setModalQtyOpen(false)}
-            keyboardType={'number-pad'}
+            keyboardType={'numeric'}
             defaultValue={countItem.Quantity}
             onChangeText={val => setQuantity(val)}
           />

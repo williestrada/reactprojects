@@ -19,11 +19,12 @@ import {set} from 'react-native-reanimated';
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [salesDtl, setSalesDtl] = useState([]);
+  const [salesItem, setSalesItem] = useState([]);
   const [product, setProduct] = useState([]);
+
   const [isLoading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [salesDtl, setSalesDtl] = useState([]);
-  const [salesDataToEdit, setSalesDataToEdit] = useState([]);
   const [modalEditOpen, setModalEditOpen] = useState(false);
   const [totalSales, setTotalSales] = useState(0); //Just for CountData
 
@@ -86,8 +87,8 @@ export default function App() {
         setLoading,
         modalOpen,
         setModalOpen,
-        salesDataToEdit,
-        setSalesDataToEdit,
+        salesItem,
+        setSalesItem,
         modalEditOpen,
         setModalEditOpen,
         totalSales,

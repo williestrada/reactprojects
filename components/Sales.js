@@ -33,10 +33,10 @@ function Sales({navigation}) {
     setSalesDtl,
     isLoading,
     setLoading,
-    salesDataToEdit,
+    salesItem,
+    setSalesItem,
     totalSales,
     setTotalSales,
-    setSalesDataToEdit,
     setModalEditOpen,
   } = useContext(UserContext);
 
@@ -118,8 +118,7 @@ function Sales({navigation}) {
   };
 
   const editItem = item => {
-    //setSalesDataToEdit(item);
-    setCurrentItem(item);
+    setSalesItem(item), setCurrentItem(item);
     setModalEditOpen(true);
   };
 
@@ -169,11 +168,16 @@ function Sales({navigation}) {
       .toFixed(2)
       .replace(/\d(?=(\d{3})+\.)/g, '$&,');
 
+    // let nItemPrce = item.ItemPrce;
+    // let nAmount__ = item.Quantity * item.ItemPrce;
+
     var swipeDelete = [
       {
         text: 'Edit',
         backgroundColor: 'rgb(0,64,128)',
-        onPress: () => '',
+        onPress: () => {
+          editItem(item);
+        },
       },
       {
         text: 'Del',
@@ -220,7 +224,7 @@ function Sales({navigation}) {
         hidesWhenStopped={true}
         style={{height: 0}}
       />
-      <ModalEditSales currentItem={setCurrentItem} />
+      <ModalEditSales key={salesItem.RecordId} />
       <SafeAreaView style={styles.container}>
         <ImageBackground
           source={require('../images/abstract_blue.png')}
@@ -303,7 +307,10 @@ function Sales({navigation}) {
             </Icon.Button>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => addSalesData()}>
+          <TouchableOpacity
+            onPress={() => {
+              addSalesData();
+            }}>
             <Icon.Button
               style={{color: 'white'}}
               size={20}
