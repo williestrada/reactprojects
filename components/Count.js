@@ -9,6 +9,7 @@ import {
   FlatList,
   TouchableOpacity,
   Keyboard,
+  ActivityIndicator,
   Alert,
   ScrollView,
 } from 'react-native';
@@ -24,6 +25,7 @@ import {saveCount, deleteCount, countToCSV} from '../src/RetailAPI';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import FontAwe from 'react-native-vector-icons/FontAwesome5';
 import {Icon} from 'react-native-elements';
 
 import {CheckBox} from 'react-native-elements';
@@ -34,7 +36,7 @@ import Swipeout from 'react-native-swipeout';
 import moment from 'moment';
 
 export default function Count({navigation}) {
-  const {product} = useContext(UserContext);
+  const {product, isLoading, setLoading} = useContext(UserContext);
   const [prodSearch, setProdSearch] = useState('WPE');
   prodSearch ? '' : setProdSearch('WPE'); //clear search when prodSearch =''
 
@@ -45,7 +47,7 @@ export default function Count({navigation}) {
   );
 
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
-  const [showCounList, setShowCounList] = useState(400);
+  const [showCounList, setShowCounList] = useState(500);
 
   const [countDtl, setCountDtl] = useState([]);
   const [countItem, setCountItem] = useState([]);
@@ -123,6 +125,7 @@ export default function Count({navigation}) {
         });
         setCountDtl(countDtl.concat(newData));
         setTotalQty(ntotalCount);
+        setLoading(false);
       });
     });
   }
@@ -163,7 +166,7 @@ export default function Count({navigation}) {
         return null;
       }
 
-      setShowProdList(400);
+      setShowProdList(500);
       setShowCounList(0);
     }
   };
@@ -198,7 +201,7 @@ export default function Count({navigation}) {
 
     setTotalQty(totalQty + 1);
     setShowProdList(0);
-    setShowCounList(400);
+    setShowCounList(500);
     setOtherCde('');
   };
 
@@ -228,6 +231,17 @@ export default function Count({navigation}) {
       console.log(nIndex + ' Rendering Count Flatlist');
     }, []);
 
+    const swipeEdit = [
+      {
+        text: 'Edit',
+        backgroundColor: 'rgb(0,64,128)',
+        width: 10,
+        onPress: () => {
+          setCountItem(item);
+          setModalQtyOpen(true);
+        },
+      },
+    ];
     const swipeDelete = [
       {
         text: 'Del',
@@ -240,36 +254,37 @@ export default function Count({navigation}) {
     return (
       <View style={styles.itemContainer}>
         <Swipeout
+          left={swipeEdit}
           right={swipeDelete}
           backgroundColor={'rgba(0,0,0,.3)'}
           sensitivity={70}
           buttonWidth={100}
           autoClose={true}>
-          <TouchableOpacity
-            onPress={() => {
-              setCountItem(item);
-              setModalQtyOpen(true);
-            }}>
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flex: 1}}>
-                <View style={styles.textCodeView}>
-                  <Highlighter
-                    highlightStyle={{fontWeight: 'bold', color: 'orange'}}
-                    searchWords={[txtSearch]}
-                    textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
-                    style={styles.textOtherCde}
-                  />
-                  <Text style={styles.textDescript}>{item.Date____}</Text>
-                </View>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 1}}>
+              <View style={styles.textCodeView}>
                 <Highlighter
                   highlightStyle={{fontWeight: 'bold', color: 'orange'}}
                   searchWords={[txtSearch]}
-                  textToHighlight={item.Descript.substr(0, 50)}
-                  style={styles.textDescript}
+                  textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
+                  style={styles.textOtherCde}
                 />
+                <Text style={styles.textDescript}>{item.Date____}</Text>
               </View>
+              <Highlighter
+                highlightStyle={{fontWeight: 'bold', color: 'orange'}}
+                searchWords={[txtSearch]}
+                textToHighlight={item.Descript.substr(0, 50)}
+                style={styles.textDescript}
+              />
+            </View>
 
-              {/* Right Panel + - buttons */}
+            {/* Right Panel + - buttons */}
+            <TouchableOpacity
+              onPress={() => {
+                setCountItem(item);
+                setModalQtyOpen(true);
+              }}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -314,7 +329,6 @@ export default function Count({navigation}) {
                     color: 'white',
                     fontSize: 14,
                     marginLeft: 4,
-                    marginRight: 4,
                     textAlign: 'center',
                     paddingTop: 10,
                     borderColor: 'rgba(255,255,255,.7)',
@@ -378,8 +392,8 @@ export default function Count({navigation}) {
                   </View>
                 </TouchableOpacity> */}
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </Swipeout>
       </View>
     );
@@ -458,7 +472,7 @@ export default function Count({navigation}) {
             selectTextOnFocus={true}
             onFocus={() => {
               setShowProdList(0);
-              setShowCounList(400);
+              setShowCounList(500);
             }}
             showSoftInputOnFocus={!barScannerOn}
             onChangeText={val => handlerSearchOtherCde(val)}
@@ -497,6 +511,13 @@ export default function Count({navigation}) {
           style={styles.line}>
           {' '}
         </Text>
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          animating={isLoading}
+          hidesWhenStopped={true}
+          style={{height: 0}}
+        />
         <ScrollView style={{flex: 1}}>
           {/* Product View List */}
           <View style={{height: showProdList}}>
@@ -577,6 +598,24 @@ export default function Count({navigation}) {
               Export
             </Text>
           </Fontisto.Button>
+          <FontAwe.Button
+            style={{color: 'orange'}}
+            size={20}
+            backgroundColor="#00000000"
+            onPress={() => {
+              setTxtSearch(valOtherCde);
+              Keyboard.dismiss();
+            }}
+            name={Platform.OS === 'android' ? 'highlighter' : 'highlighter'}>
+            <Text
+              style={{
+                color: 'white',
+                fontFamily: 'Arial',
+                fontSize: 12,
+              }}>
+              Show
+            </Text>
+          </FontAwe.Button>
           <Entypo.Button
             type="Entypo"
             style={{color: 'white'}}
@@ -659,6 +698,7 @@ const styles = StyleSheet.create({
   },
   textCodeView: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   textOtherCde: {
     flex: 2,

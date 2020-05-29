@@ -225,7 +225,9 @@ export default function Settings({navigation}) {
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
-            onPress={() => saveSettings()}
+            onPress={() => {
+              saveSettings();
+            }}
             name={Platform.OS === 'android' ? 'save' : 'save'}>
             <Text
               style={{

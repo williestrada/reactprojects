@@ -40,6 +40,8 @@ function Sales({navigation}) {
     setModalEditOpen,
   } = useContext(UserContext);
 
+  const confetti = React.createRef();
+
   useEffect(() => {
     console.log('Rendering Sales component');
     storeName(); //show store name on top <DateInfo />
@@ -171,7 +173,7 @@ function Sales({navigation}) {
     // let nItemPrce = item.ItemPrce;
     // let nAmount__ = item.Quantity * item.ItemPrce;
 
-    var swipeDelete = [
+    var swipeEdit = [
       {
         text: 'Edit',
         backgroundColor: 'rgb(0,64,128)',
@@ -179,6 +181,8 @@ function Sales({navigation}) {
           editItem(item);
         },
       },
+    ];
+    var swipeDelete = [
       {
         text: 'Del',
         backgroundColor: 'red',
@@ -190,16 +194,18 @@ function Sales({navigation}) {
     return (
       <View style={styles.itemContainer}>
         <Swipeout
+          left={swipeEdit}
           right={swipeDelete}
           backgroundColor={'rgba(0,0,0,.3)'}
           sensitivity={70}
+          buttonWidth={100}
           autoClose={true}>
           <View style={styles.textCodeView}>
             <Text style={styles.textOtherCde}>
               {nIndex.toString().trim()}. # {item.OtherCde}
             </Text>
             <Text style={styles.textItem}>Qty.: {item.Quantity}</Text>
-            <Text style={styles.textItem}>
+            <Text style={{...styles.textItem, ...styles.unitPrice}}>
               {'   '}Price: {nItemPrce}
             </Text>
           </View>
@@ -216,14 +222,7 @@ function Sales({navigation}) {
   return (
     <>
       <Header navigation={navigation} title={'Sales'} iconName={'home'} />
-      <ModalSales storName={storName} />
-      <ActivityIndicator
-        size="large"
-        color="#0000ff"
-        animating={isLoading}
-        hidesWhenStopped={true}
-        style={{height: 0}}
-      />
+      <ModalSales storName={storName} confetti={confetti} />
       <ModalEditSales key={salesItem.RecordId} />
       <SafeAreaView style={styles.container}>
         <ImageBackground
@@ -383,6 +382,10 @@ const styles = StyleSheet.create({
   textItem: {
     fontSize: 12,
     color: 'white',
+  },
+  unitPrice: {
+    fontStyle: 'italic',
+    color: 'rgba(255,255,255,.7)',
   },
   textDescript: {
     fontStyle: 'italic',

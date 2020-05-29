@@ -110,13 +110,13 @@ function Products({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo storName={mfName} />
-        <ActivityIndicator
+        {/* <ActivityIndicator
           size="large"
           color="#0000ff"
           animating={isLoading}
           hidesWhenStopped={true}
           style={{height: 0}}
-        />
+        /> */}
 
         <FlatList
           data={dataList}

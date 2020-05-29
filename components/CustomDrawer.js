@@ -50,7 +50,6 @@ function CustomDrawer(props) {
           //icon={() => isFetchingStore || isFetchingMaster ? <ActivityIndicator size='small' /> : null }
         />
       </View>
-
       <View style={styles.drawerItemList}>
         <DrawerItemList {...props} />
       </View>
@@ -68,9 +67,9 @@ function CustomDrawer(props) {
           <DrawerItem
             label="Exit"
             labelStyle={{color: 'white', fontWeight: 'bold'}}
-            onPress={() =>
-              Platform.OS === 'android' ? BackHandler.exitApp() : exit(9)
-            }
+            onPress={() => {
+              Platform.OS === 'android' ? BackHandler.exitApp() : exit(9);
+            }}
           />
         </View>
       </View>
