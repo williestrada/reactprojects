@@ -23,6 +23,7 @@ import {saveSales} from '../src/RetailAPI';
 function ModalSales({storName = '', editMode}) {
   const {
     product,
+    salesDtl,
     setSalesDtl,
     modalOpen,
     setModalOpen,
@@ -124,14 +125,6 @@ function ModalSales({storName = '', editMode}) {
   };
 
   const saveSalesData = storName => {
-    const deviceId = DeviceInfo.getDeviceId();
-    let dDate____ =
-      typeof date == 'object'
-        ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
-        : date.substr(0, 16);
-    let cRecordId = Date.now();
-    let cLocation = storName;
-
     if (valOtherCde == 0 || valOtherCde == 'undefined') {
       alertMsg('Pls. enter bar code');
       return;
@@ -153,25 +146,45 @@ function ModalSales({storName = '', editMode}) {
     }
 
     let ntotalSales = Number(valQuantity) * Number(valItemPrce);
+    console.log(ntotalSales);
     setTotalSales(totalSales + ntotalSales); //CountData
 
-    setSalesDtl(prevSales => {
-      alertMsg('Data is saved.');
-      let cRecordId = Date.now();
-      let aSales = {
-        RecordId: cRecordId,
-        Date____: dDate____,
-        Quantity: Number(valQuantity),
-        OtherCde: valOtherCde,
-        Descript: valDescript,
-        ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
-        Location: storName,
-        DeviceId: deviceId,
-      };
+    const deviceId = DeviceInfo.getDeviceId();
+    let dDate____ =
+      typeof date == 'object'
+        ? date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear()
+        : date.substr(0, 16);
+    let cRecordId = Date.now();
+    let aSales = {
+      RecordId: cRecordId,
+      Date____: dDate____,
+      Quantity: Number(valQuantity),
+      OtherCde: valOtherCde,
+      Descript: valDescript,
+      ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+      Location: storName,
+      DeviceId: deviceId,
+    };
+    saveSales(aSales); //RetailAPI
+    salesDtl.unshift(aSales);
 
-      saveSales(aSales); //RetailAPI
-      return [...prevSales, aSales];
-    });
+    // setSalesDtl(prevSales => {
+    //   alertMsg('Data is saved.');
+    //   let cRecordId = Date.now();
+    //   let aSales = {
+    //     RecordId: cRecordId,
+    //     Date____: dDate____,
+    //     Quantity: Number(valQuantity),
+    //     OtherCde: valOtherCde,
+    //     Descript: valDescript,
+    //     ItemPrce: Number(valItemPrce.replace(/,|_/g, '')),
+    //     Location: storName,
+    //     DeviceId: deviceId,
+    //   };
+
+    //   saveSales(aSales); //RetailAPI
+    //   return [...prevSales, aSales]; //net ninja way of adding
+    // });
 
     setOtherCde('');
     setDescript('');

@@ -34,13 +34,13 @@ export default function ModalQuantity({
     console.log('Rendering ModalQuantity module');
   }, []);
 
-  const calcTotalQty = () => {
-    let nTotal = 0;
-    countDtl.forEach(data => {
-      nTotal += data.Quantity;
-    });
-    setTotalQty(nTotal);
-  };
+  // const calcTotalQty = () => {
+  //   let nTotal = 0;
+  //   countDtl.forEach(data => {
+  //     nTotal += data.Quantity;
+  //   });
+  //   setTotalQty(nTotal);
+  // };
 
   //When Quantity Changes
   const editCountData = (item, editedQty) => {
@@ -65,7 +65,6 @@ export default function ModalQuantity({
         : data,
     );
     setCountDtl(newCountDtl);
-    //calcTotalQty();
     setTotalQty(totalQty - item.Quantity + nQuantity);
   };
 

@@ -119,7 +119,7 @@ export default function Count({navigation}) {
                 DeviceId,
                 Is_Saved,
               };
-              newData.push(data);
+              newData.unshift(data); //or push(data)
             }
           }
         });
@@ -195,9 +195,10 @@ export default function Count({navigation}) {
     };
 
     saveCount(newCount); //RetailAPI
-    setCountDtl(prevCount => {
-      return [...prevCount, newCount];
-    });
+    let newData = countDtl.unshift(newCount);
+    // setCountDtl(prevCount => {
+    //   return [...prevCount, newCount];
+    // });
 
     setTotalQty(totalQty + 1);
     setShowProdList(0);

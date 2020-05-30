@@ -146,6 +146,8 @@ export async function salesToCSV(aSales = null) {
       DeviceId +
       ',' +
       '\r\n';
+
+    AsyncStorage.removeItem('SALES' + RecordId);
   });
   csvData = csvHeader + csvStr;
   await exportToCSV(csvData, 'Sales');

@@ -15,6 +15,7 @@ import Header from './Header';
 //import {getSettings} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import MaterialCom from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 import DocumentPicker from 'react-native-document-picker';
@@ -53,11 +54,12 @@ export default function Settings({navigation}) {
         //options .allFiles .images .audio .pdf .plainText
         type: [DocumentPicker.types.allFiles],
       });
-
       setMastFile(res.name);
+      //return file;
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         setMastFile('');
+        //return ''
       } else {
         Alert.alert('Unknown Error: ' + JSON.stringify(err));
         throw err;
@@ -188,7 +190,7 @@ export default function Settings({navigation}) {
               value={valMastFile}
               onChangeText={val => setMastFile(val)}
             />
-            <Fontisto.Button
+            <MaterialCom.Button
               style={{
                 color: 'white',
                 borderWidth: 1,
@@ -198,12 +200,14 @@ export default function Settings({navigation}) {
               }}
               size={20}
               backgroundColor="#333"
-              onPress={() => SingleFilePicker()}
-              name={Platform.OS === 'android' ? 'search' : 'search'}>
+              onPress={() => {
+                SingleFilePicker();
+              }}
+              name={Platform.OS === 'android' ? 'json' : 'json'}>
               <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
-                Select
+                json
               </Text>
-            </Fontisto.Button>
+            </MaterialCom.Button>
           </View>
           <Text //Line
             style={styles.line}>

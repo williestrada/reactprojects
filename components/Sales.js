@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   BackHandler,
+  PermissionsAndroid,
 } from 'react-native';
 
 import Header from './Header';
@@ -17,12 +18,15 @@ import CountData from './CountData';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
 import ModalEditSales from './ModalEditSales';
-import {deleteSales, salesToCSV} from '../src/RetailAPI';
+import {deleteSales, salesToCSV, csvToJSON} from '../src/RetailAPI';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
+//import FontAwe from 'react-native-vector-icons/FontAwesome5';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 
 function Sales({navigation}) {
   const [currentItem, setCurrentItem] = useState({});
@@ -98,7 +102,7 @@ function Sales({navigation}) {
                 Location,
                 DeviceId,
               };
-              newData.push(sale);
+              newData.unshift(sale); //or push(sale)
             }
           }
         });
@@ -156,12 +160,155 @@ function Sales({navigation}) {
         onPress: () => null,
         style: 'cancel',
       },
-      {text: 'YES', onPress: () => salesToCSV(data)},
+      {
+        text: 'YES',
+        onPress: () => {
+          salesToCSV(data);
+          setSalesDtl([]);
+        },
+      },
     ]);
   };
 
+  const SingleFilePicker = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        //options .allFiles .images .audio .pdf .plainText
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      readSavedFile(res.name);
+      return res.name;
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        return '';
+      } else {
+        Alert.alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
+
+  async function readSavedFile(csvFile) {
+    let RNFS = require('react-native-fs');
+    let storedFileName = csvFile;
+    let path = RNFS.DownloadDirectoryPath + '/' + storedFileName;
+    let ext = /[.]/.exec(storedFileName)
+      ? /[^.]+$/.exec(storedFileName)
+      : undefined;
+    // read the file
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          message: 'InfoPlus needs access to your storage to read a file.',
+          buttonPositive: 'OK',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await RNFS.readFile(path, 'utf8')
+          .then(contents => {
+            listJsonFile(contents, ext);
+          })
+          .catch(err => {
+            return alert(err);
+          });
+      } else {
+        alert('Permission denied');
+      }
+    } catch (err) {
+      alert(err);
+    }
+  }
+
+  async function listJsonFile(data, cFileExt) {
+    if (cFileExt == 'csv') {
+      data = csvJSON(data);
+    } else {
+      alert('The file is not a CSV file.');
+      return null;
+    }
+
+    console.log(data);
+    const newData = [];
+    await data.map(aSales => {
+      let key = 'SALES' + aSales.RecordId;
+      let RecordId = aSales.RecordId;
+      let Date____ = aSales.Date____;
+      let OtherCde = aSales.OtherCde;
+      let Descript = aSales.Descript;
+      let Quantity = Number(aSales.Quantity);
+      let ItemPrce = Number(aSales.ItemPrce);
+      let Location = aSales.Location;
+      let DeviceId = aSales.DeviceId;
+
+      if (!salesDtl.some(d => d.RecordId === RecordId)) {
+        //          ntotalSales += Quantity * ItemPrce;
+        const sale = {
+          RecordId,
+          Date____,
+          OtherCde,
+          Descript,
+          Quantity,
+          ItemPrce,
+          Location,
+          DeviceId,
+        };
+        newData.push(sale);
+      }
+
+      let dataToSave = JSON.stringify({
+        RecordId: RecordId,
+        OtherCde: OtherCde,
+        Descript: Descript,
+        Quantity: Quantity,
+        ItemPrce: ItemPrce,
+        Date____: Date____,
+        Location: Location,
+        DeviceId: DeviceId,
+      });
+      // cannot set await on AsyncStorage here
+      // call and check if item is stored, if not set it
+      checkStoredData(key, dataToSave);
+    });
+
+    setSalesDtl(salesDtl.concat(newData));
+    //salesDtl.concat(newData);
+  }
+
+  async function checkStoredData(key, val) {
+    let storedKey = await AsyncStorage.getItem(key);
+    if (storedKey == null) {
+      await AsyncStorage.setItem(key, val);
+    }
+    return null;
+  }
+
+  function csvJSON(csv) {
+    const lines = csv.split('\r\n');
+    const result = [];
+    const headers = lines[0].split(',');
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const obj = {};
+      const currentline = lines[i].split(',');
+
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = currentline[j];
+      }
+      result.push(obj);
+    }
+    return result;
+  }
+
   function ItemList({item, index}) {
     let nIndex = index + 1;
+    // let nItemPrce = item.ItemPrce;
+    // let nAmount__ = item.Quantity * item.ItemPrce;
+
     let nItemPrce = item.ItemPrce.toFixed(2).replace(
       /\d(?=(\d{3})+\.)/g,
       '$&,',
@@ -169,9 +316,6 @@ function Sales({navigation}) {
     let nAmount__ = (item.Quantity * item.ItemPrce)
       .toFixed(2)
       .replace(/\d(?=(\d{3})+\.)/g, '$&,');
-
-    // let nItemPrce = item.ItemPrce;
-    // let nAmount__ = item.Quantity * item.ItemPrce;
 
     var swipeEdit = [
       {
@@ -282,6 +426,21 @@ function Sales({navigation}) {
           data2={totalSales.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}
         />
         <View style={styles.bottomMenu}>
+          <TouchableOpacity
+            onPress={() => {
+              SingleFilePicker();
+            }}>
+            <Icon.Button
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'import' : 'import'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                Import
+              </Text>
+            </Icon.Button>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => saveSalesHandler(salesDtl)}>
             <Icon.Button
               style={{color: 'white'}}
