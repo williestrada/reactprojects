@@ -102,6 +102,7 @@ export async function countToCSV(aCount = null) {
       DeviceId +
       ',' +
       '\r\n';
+    AsyncStorage.removeItem('COUNT' + RecordId);
   });
   csvData = csvHeader + csvStr;
   await exportToCSV(csvData, 'Count');

@@ -19,6 +19,7 @@ import MaterialCom from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 import DocumentPicker from 'react-native-document-picker';
+//import {Calculator} from 'react-native-calculator';
 
 export default function Settings({navigation}) {
   const [valLocation, setLocation] = useState('');

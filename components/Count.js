@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  PermissionsAndroid,
 } from 'react-native';
 
 import Header from './Header';
@@ -34,6 +35,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Highlighter from 'react-native-highlight-words';
 import Swipeout from 'react-native-swipeout';
 import moment from 'moment';
+import DocumentPicker from 'react-native-document-picker';
 
 export default function Count({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
@@ -220,9 +222,151 @@ export default function Count({navigation}) {
         onPress: () => null,
         style: 'cancel',
       },
-      {text: 'YES', onPress: () => countToCSV(data)},
+      {
+        text: 'YES',
+        onPress: () => {
+          countToCSV(data);
+          setCountDtl([]);
+          setTotalQty(0);
+        },
+      },
     ]);
   };
+
+  const SingleFilePicker = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        //options .allFiles .images .audio .pdf .plainText
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      readSavedFile(res.name);
+      return res.name;
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        return '';
+      } else {
+        Alert.alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
+
+  async function readSavedFile(csvFile) {
+    let RNFS = require('react-native-fs');
+    let storedFileName = csvFile;
+    let path = RNFS.DownloadDirectoryPath + '/' + storedFileName;
+    let ext = /[.]/.exec(storedFileName)
+      ? /[^.]+$/.exec(storedFileName)
+      : undefined;
+    // read the file
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          message: 'InfoPlus needs access to your storage to read a file.',
+          buttonPositive: 'OK',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await RNFS.readFile(path, 'utf8')
+          .then(contents => {
+            listJsonFile(contents, ext);
+          })
+          .catch(err => {
+            return alert(err);
+          });
+      } else {
+        alert('Permission denied');
+      }
+    } catch (err) {
+      alert(err);
+    }
+  }
+
+  async function listJsonFile(data, cFileExt) {
+    if (cFileExt == 'csv') {
+      data = csvJSON(data);
+    } else {
+      alert('The file is not a CSV file.');
+      return null;
+    }
+
+    console.log(data);
+    const newData = [];
+    let ntotalCount = 0;
+    await data.map(aCount => {
+      let key = 'COUNT' + aCount.RecordId;
+      let RecordId = aCount.RecordId;
+      let Date____ = aCount.Date____;
+      let OtherCde = aCount.OtherCde;
+      let Descript = aCount.Descript;
+      let Quantity = Number(aCount.Quantity);
+      let Location = aCount.Location;
+      let UserName = aCount.UserName;
+      let DeviceId = aCount.DeviceId;
+
+      if (!countDtl.some(d => d.RecordId === RecordId)) {
+        ntotalCount += Quantity;
+        const count = {
+          RecordId,
+          Date____,
+          OtherCde,
+          Descript,
+          Quantity,
+          Location,
+          UserName,
+          DeviceId,
+        };
+        newData.push(count);
+      }
+
+      let dataToSave = JSON.stringify({
+        RecordId: RecordId,
+        OtherCde: OtherCde,
+        Descript: Descript,
+        Quantity: Quantity,
+        Date____: Date____,
+        Location: Location,
+        UserName: UserName,
+        DeviceId: DeviceId,
+      });
+      // cannot set await on AsyncStorage here
+      // call and check if item is stored, if not set it
+      checkStoredData(key, dataToSave);
+    });
+
+    setCountDtl(countDtl.concat(newData));
+    setTotalQty(totalQty + ntotalCount);
+  }
+
+  async function checkStoredData(key, val) {
+    let storedKey = await AsyncStorage.getItem(key);
+    if (storedKey == null) {
+      await AsyncStorage.setItem(key, val);
+    }
+    return null;
+  }
+
+  function csvJSON(csv) {
+    const lines = csv.split('\r\n');
+    const result = [];
+    const headers = lines[0].split(',');
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const obj = {};
+      const currentline = lines[i].split(',');
+
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = currentline[j];
+      }
+      result.push(obj);
+    }
+    return result;
+  }
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
@@ -433,7 +577,6 @@ export default function Count({navigation}) {
   }
 
   let scannerColor = barScannerOn ? 'white' : 'black';
-
   return (
     <>
       <Header navigation={navigation} title={'Count'} iconName={'settings'} />
@@ -493,7 +636,10 @@ export default function Count({navigation}) {
             size={20}
             checkedColor="white"
             uncheckedColor="rgba(255,255,255,.7)"
-            onPress={() => setBarScannerOn(!barScannerOn)}
+            onPress={() => {
+              setBarScannerOn(!barScannerOn);
+              othercde.current.focus();
+            }}
             textStyle={{
               padding: 0,
               color: 'white',
@@ -588,6 +734,23 @@ export default function Count({navigation}) {
             style={{color: 'white'}}
             size={20}
             backgroundColor="#00000000"
+            onPress={() => SingleFilePicker()}
+            name={Platform.OS === 'android' ? 'import' : 'import'}>
+            <Text
+              style={{
+                color: 'white',
+                fontFamily: 'Arial',
+                fontSize: 12,
+              }}>
+              Import
+            </Text>
+          </Fontisto.Button>
+
+          <Fontisto.Button
+            type="Fontisto"
+            style={{color: 'white'}}
+            size={20}
+            backgroundColor="#00000000"
             onPress={() => saveCountHandler(countDtl)}
             name={Platform.OS === 'android' ? 'export' : 'export'}>
             <Text
@@ -614,7 +777,7 @@ export default function Count({navigation}) {
                 fontFamily: 'Arial',
                 fontSize: 12,
               }}>
-              Show
+              Hi-lite
             </Text>
           </FontAwe.Button>
           <Entypo.Button

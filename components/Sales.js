@@ -26,6 +26,7 @@ import Icon from 'react-native-vector-icons/Fontisto';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout';
 import DocumentPicker from 'react-native-document-picker';
+//import {Calculator} from 'react-native-calculator';
 import RNFS from 'react-native-fs';
 
 function Sales({navigation}) {
@@ -165,6 +166,7 @@ function Sales({navigation}) {
         onPress: () => {
           salesToCSV(data);
           setSalesDtl([]);
+          setTotalSales(0);
         },
       },
     ]);
@@ -233,6 +235,7 @@ function Sales({navigation}) {
 
     console.log(data);
     const newData = [];
+    let ntotalSales = 0;
     await data.map(aSales => {
       let key = 'SALES' + aSales.RecordId;
       let RecordId = aSales.RecordId;
@@ -245,7 +248,7 @@ function Sales({navigation}) {
       let DeviceId = aSales.DeviceId;
 
       if (!salesDtl.some(d => d.RecordId === RecordId)) {
-        //          ntotalSales += Quantity * ItemPrce;
+        ntotalSales += Quantity * ItemPrce;
         const sale = {
           RecordId,
           Date____,
@@ -275,7 +278,7 @@ function Sales({navigation}) {
     });
 
     setSalesDtl(salesDtl.concat(newData));
-    //salesDtl.concat(newData);
+    setTotalSales(totalSales + ntotalSales);
   }
 
   async function checkStoredData(key, val) {
@@ -382,7 +385,6 @@ function Sales({navigation}) {
           hidesWhenStopped={true}
           style={{height: 0}}
         />
-
         <FlatList
           data={salesDtl}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
@@ -453,7 +455,7 @@ function Sales({navigation}) {
             </Icon.Button>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => AsyncStorage.removeItem('SETUP')}>
+          {/* <TouchableOpacity onPress={() => AsyncStorage.removeItem('SETUP')}>
             <Icon.Button
               style={{color: 'white'}}
               size={20}
@@ -463,7 +465,7 @@ function Sales({navigation}) {
                 List
               </Text>
             </Icon.Button>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             onPress={() => {
