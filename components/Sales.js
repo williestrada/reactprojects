@@ -43,6 +43,7 @@ function Sales({navigation}) {
     totalSales,
     setTotalSales,
     setModalEditOpen,
+    clearData,
   } = useContext(UserContext);
 
   const confetti = React.createRef();
@@ -164,9 +165,11 @@ function Sales({navigation}) {
       {
         text: 'YES',
         onPress: () => {
-          salesToCSV(data);
-          setSalesDtl([]);
-          setTotalSales(0);
+          salesToCSV(data, clearData);
+          if (clearData) {
+            setSalesDtl([]);
+            setTotalSales(0);
+          }
         },
       },
     ]);
@@ -233,9 +236,10 @@ function Sales({navigation}) {
       return null;
     }
 
-    console.log(data);
+    //console.log(data);
     const newData = [];
     let ntotalSales = 0;
+    setLoading(true);
     await data.map(aSales => {
       let key = 'SALES' + aSales.RecordId;
       let RecordId = aSales.RecordId;
@@ -279,6 +283,7 @@ function Sales({navigation}) {
 
     setSalesDtl(salesDtl.concat(newData));
     setTotalSales(totalSales + ntotalSales);
+    setLoading(false);
   }
 
   async function checkStoredData(key, val) {
@@ -405,7 +410,7 @@ function Sales({navigation}) {
                       color: 'white',
                       alignSelf: 'center',
                     }}>
-                    No sales item found
+                    {''}
                   </Text>
                 </View>
               );
@@ -449,9 +454,26 @@ function Sales({navigation}) {
               size={20}
               backgroundColor="#00000000"
               name={Platform.OS === 'android' ? 'export' : 'export'}>
-              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
-                Export
-              </Text>
+              <View style={{flexDirection: 'column'}}>
+                <Text
+                  style={{
+                    position: 'absolute',
+                    marginLeft: 5,
+                    marginBottom: 2,
+                    height: 12,
+                    width: 12,
+                    borderRadius: 12,
+                    alignSelf: 'flex-end',
+                    backgroundColor: clearData ? 'red' : 'rgba(0,250,0,.5)',
+                  }}>
+                  {''}
+                </Text>
+
+                <Text
+                  style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                  Export
+                </Text>
+              </View>
             </Icon.Button>
           </TouchableOpacity>
 

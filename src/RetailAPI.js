@@ -1,6 +1,8 @@
-//import React, {useContext} from 'react';
+import React from 'react';
 import {Alert, PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+
+import UserContext from '../components/UserContext';
 
 export function delay(ms) {
   return new Promise((resolve, reject) => setTimeout(resolve, ms));
@@ -62,7 +64,7 @@ export const getSettings = async prop => {
   }
 };
 
-export async function countToCSV(aCount = null) {
+export async function countToCSV(aCount = null, clearData) {
   if (aCount === null || !aCount.length) {
     alert('There are no items to export.');
     return null;
@@ -102,13 +104,15 @@ export async function countToCSV(aCount = null) {
       DeviceId +
       ',' +
       '\r\n';
-    AsyncStorage.removeItem('COUNT' + RecordId);
+    if (clearData) {
+      AsyncStorage.removeItem('COUNT' + RecordId);
+    }
   });
   csvData = csvHeader + csvStr;
   await exportToCSV(csvData, 'Count');
 }
 
-export async function salesToCSV(aSales = null) {
+export async function salesToCSV(aSales = null, clearData) {
   if (aSales === null || !aSales.length) {
     alert('There are no items to export.');
     return null;
@@ -147,8 +151,9 @@ export async function salesToCSV(aSales = null) {
       DeviceId +
       ',' +
       '\r\n';
-
-    AsyncStorage.removeItem('SALES' + RecordId);
+    if (clearData) {
+      AsyncStorage.removeItem('SALES' + RecordId);
+    }
   });
   csvData = csvHeader + csvStr;
   await exportToCSV(csvData, 'Sales');

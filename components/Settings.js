@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,11 @@ import {
   TextInput,
   Keyboard,
   Alert,
+  Switch,
 } from 'react-native';
 
 import Header from './Header';
+import UserContext from './UserContext';
 //import {getSettings} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -26,18 +28,22 @@ export default function Settings({navigation}) {
   const [valUserName, setUserName] = useState('');
   const [valMastFile, setMastFile] = useState('');
   const deviceId = DeviceInfo.getDeviceId();
-  //const phoneNum = DeviceInfo.getModel();
 
   //reference to textinput fields
   const location = React.createRef();
   const username = React.createRef();
   const mastfile = React.createRef();
 
+  const {clearData, setClearData} = useContext(UserContext);
+
   useEffect(() => {
     console.log('Rendering Settings component');
     getSettings();
   }, []);
 
+  const toggleClearData = () => {
+    setClearData(!clearData);
+  };
   const getSettings = async () => {
     const aSettings = await AsyncStorage.getItem('SETUP');
     if (aSettings != null) {
@@ -45,6 +51,8 @@ export default function Settings({navigation}) {
         setLocation(setup.Location);
         setUserName(setup.UserName);
         setMastFile(setup.MastFile);
+        let lClearData = setup.ClearDta == 'true' ? true : false;
+        setClearData(lClearData);
       });
     }
   };
@@ -88,6 +96,7 @@ export default function Settings({navigation}) {
           Location: valLocation,
           UserName: valUserName,
           MastFile: valMastFile,
+          ClearDta: clearData ? 'true' : 'false',
         },
       ]),
     )
@@ -127,7 +136,7 @@ export default function Settings({navigation}) {
               style={{...styles.textInput, ...styles.textStore}}
               placeholder="store name..."
               autoCapitalize="characters"
-              maxLength={10}
+              maxLength={20}
               onSubmitEditing={() => {
                 username.current.focus();
               }}
@@ -151,7 +160,7 @@ export default function Settings({navigation}) {
               style={{...styles.textInput, ...styles.textStore}}
               placeholder="user name..."
               autoCapitalize="characters"
-              maxLength={10}
+              maxLength={20}
               onSubmitEditing={() => {
                 mastfile.current.focus();
               }}
@@ -215,6 +224,53 @@ export default function Settings({navigation}) {
             {' '}
           </Text>
 
+          <View
+            style={{
+              flexDirection: 'row',
+              paddingTop: 5,
+              alignItems: 'center',
+            }}>
+            <View style={{flexDirection: 'column'}}>
+              <Text style={styles.longText}>Clear data on Export:</Text>
+              <Text
+                style={{
+                  position: 'absolute',
+                  marginLeft: 5,
+                  marginBottom: 2,
+                  height: 12,
+                  width: 12,
+                  borderRadius: 12,
+                  alignSelf: 'flex-end',
+                  backgroundColor: clearData
+                    ? 'rgba(300,0,0,.5)'
+                    : 'rgba(0,200,0,.5)',
+                }}>
+                {''}
+              </Text>
+            </View>
+            <Switch
+              trackColor={{false: '#767577', true: '#767577'}}
+              thumbColor={clearData ? 'red' : 'lawngreen'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleClearData}
+              value={clearData}
+              style={{
+                paddingLeft: 10,
+                transform: [{scaleX: 1.3}, {scaleY: 1.3}],
+              }}
+            />
+            <Text
+              onPress={toggleClearData}
+              style={{
+                paddingLeft: 8,
+                color: 'white',
+                fontStyle: 'italic',
+                fontFamily: 'serif',
+              }}>
+              {clearData ? 'Yes' : 'No'}
+            </Text>
+          </View>
+
           {/* <Text style={{color: 'white'}}>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
@@ -275,7 +331,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   textStore: {
-    width: 120,
+    width: 150,
   },
   textMastFile: {
     marginRight: 10,
@@ -304,6 +360,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
     width: 90,
+  },
+  longText: {
+    fontSize: 14,
+    color: 'white',
   },
 
   bottomMenu: {

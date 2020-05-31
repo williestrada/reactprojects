@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 
 import {View, Image, StyleSheet, BackHandler, Alert} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/AntDesign';
 
@@ -45,6 +46,7 @@ function CustomDrawer(props) {
         <DrawerItem
           label="InfoPlus Retail"
           onPress={() => {
+            AsyncStorage.removeItem('SETUP');
             props.navigation.closeDrawer();
           }}
           //icon={() => isFetchingStore || isFetchingMaster ? <ActivityIndicator size='small' /> : null }

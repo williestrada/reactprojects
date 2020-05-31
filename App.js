@@ -27,6 +27,7 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEditOpen, setModalEditOpen] = useState(false);
   const [totalSales, setTotalSales] = useState(0); //Just for CountData
+  const [clearData, setClearData] = useState(true);
 
   useEffect(() => {
     console.log('Fetching masterfile');
@@ -34,12 +35,15 @@ export default function App() {
   }, []);
 
   async function getMasterFile() {
+    let lClearData = true;
     let cMastFile = '';
     let objSetup = await AsyncStorage.getItem('SETUP');
     if (objSetup == null) return;
     JSON.parse(objSetup).map(setup => {
       cMastFile = setup.MastFile.trim();
+      lClearData = setup.ClearDta == 'true' ? true : false;
     });
+    setClearData(lClearData); // I include to pick up clearData state here
     if (!cMastFile) return; //allow EVEN without masterfile
 
     const RNFS = require('react-native-fs');
@@ -93,6 +97,8 @@ export default function App() {
         setModalEditOpen,
         totalSales,
         setTotalSales,
+        clearData,
+        setClearData,
       }}>
       <NavigationContainer>
         <Drawer.Navigator

@@ -38,7 +38,7 @@ import moment from 'moment';
 import DocumentPicker from 'react-native-document-picker';
 
 export default function Count({navigation}) {
-  const {product, isLoading, setLoading} = useContext(UserContext);
+  const {product, isLoading, setLoading, clearData} = useContext(UserContext);
   const [prodSearch, setProdSearch] = useState('WPE');
   prodSearch ? '' : setProdSearch('WPE'); //clear search when prodSearch =''
 
@@ -225,9 +225,11 @@ export default function Count({navigation}) {
       {
         text: 'YES',
         onPress: () => {
-          countToCSV(data);
-          setCountDtl([]);
-          setTotalQty(0);
+          countToCSV(data, clearData);
+          if (clearData) {
+            setCountDtl([]);
+            setTotalQty(0);
+          }
         },
       },
     ]);
@@ -614,6 +616,9 @@ export default function Count({navigation}) {
             maxLength={20}
             value={valOtherCde}
             selectTextOnFocus={true}
+            onSubmitEditing={() => {
+              handlerShowProdList();
+            }}
             onFocus={() => {
               setShowProdList(0);
               setShowCounList(500);
@@ -753,14 +758,29 @@ export default function Count({navigation}) {
             backgroundColor="#00000000"
             onPress={() => saveCountHandler(countDtl)}
             name={Platform.OS === 'android' ? 'export' : 'export'}>
-            <Text
-              style={{
-                color: 'white',
-                fontFamily: 'Arial',
-                fontSize: 12,
-              }}>
-              Export
-            </Text>
+            <View style={{flexDirection: 'column'}}>
+              <Text
+                style={{
+                  position: 'absolute',
+                  marginLeft: 5,
+                  marginBottom: 2,
+                  height: 12,
+                  width: 12,
+                  borderRadius: 12,
+                  alignSelf: 'flex-end',
+                  backgroundColor: clearData ? 'red' : 'rgba(0,200,0,.5)',
+                }}>
+                {''}
+              </Text>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'Arial',
+                  fontSize: 12,
+                }}>
+                Export
+              </Text>
+            </View>
           </Fontisto.Button>
           <FontAwe.Button
             style={{color: 'orange'}}
@@ -777,7 +797,7 @@ export default function Count({navigation}) {
                 fontFamily: 'Arial',
                 fontSize: 12,
               }}>
-              Hi-lite
+              HiLite
             </Text>
           </FontAwe.Button>
           <Entypo.Button
