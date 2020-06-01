@@ -18,7 +18,7 @@ import CountData from './CountData';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
 import ModalEditSales from './ModalEditSales';
-import {deleteSales, salesToCSV, csvToJSON} from '../src/RetailAPI';
+import {deleteSales, salesToCSV, fetchSalesDb} from '../src/RetailAPI';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
@@ -52,6 +52,7 @@ function Sales({navigation}) {
     console.log('Rendering Sales component');
     storeName(); //show store name on top <DateInfo />
     fetchSales();
+    //fetchSalesData();
     const backAction = () => {
       Alert.alert('Hold on!', 'Do you want to exit InfoPlus?', [
         {
@@ -71,6 +72,11 @@ function Sales({navigation}) {
 
     return () => backHandler.remove();
   }, []);
+
+  async function fetchSalesData() {
+    const data = await fetchSalesDb();
+    console.log('fetched sales', data);
+  }
 
   async function fetchSales() {
     await AsyncStorage.getAllKeys((err, keys) => {

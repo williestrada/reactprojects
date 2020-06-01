@@ -50,7 +50,7 @@ export default function App() {
     //const downloadPath = `${RNFS.DownloadDirectoryPath}/db_juices.json`;
 
     const downloadPath = RNFS.DownloadDirectoryPath + '/' + cMastFile;
-    console.log(downloadPath);
+    //console.log(downloadPath);
 
     try {
       const granted = await PermissionsAndroid.request(

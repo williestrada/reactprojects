@@ -166,8 +166,9 @@ async function exportToCSV(csvData, cTitle) {
     cTitle +
     '_' +
     Date()
-      .substring(19, 24)
-      .replace(':', '') +
+      .substring(4, 24)
+      .replace(/:|_/g, '')
+      .replace(/ |_/g, '_') +
     '.csv';
   let path = RNFS.DownloadDirectoryPath + '/' + csvFileName;
   // write the file
@@ -195,4 +196,13 @@ async function exportToCSV(csvData, cTitle) {
   } catch (err) {
     Alert.alert('Error!', err);
   }
+}
+
+export async function fetchSalesDb() {
+  await fetch('192.168.68.106:8082/findSales')
+    .then(response => response.json())
+    .then(data => {
+      console.log('Sales data fetched', data);
+      return data;
+    });
 }

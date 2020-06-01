@@ -17,5 +17,7 @@ const UserContext = React.createContext({
   setSalesItem: () => {},
   setTotalSales: () => {},
   setClearData: () => {},
+  csvFileName: '',
+  setCsvFileName: () => {},
 });
 export default UserContext;
