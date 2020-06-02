@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 
-import {View, Image, StyleSheet, BackHandler, Alert} from 'react-native';
+import {View, Image, StyleSheet, BackHandler} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/AntDesign';
@@ -12,6 +12,7 @@ import {
 } from '@react-navigation/drawer';
 
 const logo = require('../images/InfoPlus.png');
+//const winHeight = Dimensions.get('window').height;
 
 const callAbout = props => {
   props.navigation.closeDrawer();
@@ -21,41 +22,44 @@ const bckgrndColor = 'dimgray';
 function CustomDrawer(props) {
   //alert(props.productData);
   return (
-    <DrawerContentScrollView>
-      <View
-        style={{
-          paddingTop: 5,
-          flexDirection: 'row',
-          alignItems: 'center',
-          //backgroundColor: '#009AED',
-          height: 80,
-          borderBottomWidth: 1,
-          borderBottomColor: '#DDD',
-          paddingHorizontal: 10,
-          paddingBottom: 5,
-          marginTop: 0,
-          marginBottom: 20,
-        }}>
-        <View>
-          <Image
-            source={logo}
-            style={{width: 50, height: 50}}
-            resizeMode="contain"
+    <>
+      <DrawerContentScrollView style={{}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            //backgroundColor: '#009AED',
+            height: 80,
+            borderBottomWidth: 1,
+            borderBottomColor: '#DDD',
+            padding: 10,
+          }}>
+          <View>
+            <Image
+              source={logo}
+              style={{width: 50, height: 50}}
+              resizeMode="contain"
+            />
+          </View>
+          <DrawerItem
+            label="InfoPlus Retail"
+            onPress={() => {
+              AsyncStorage.removeItem('SETUP');
+              props.navigation.closeDrawer();
+            }}
           />
         </View>
-        <DrawerItem
-          label="InfoPlus Retail"
-          onPress={() => {
-            AsyncStorage.removeItem('SETUP');
-            props.navigation.closeDrawer();
-          }}
-          //icon={() => isFetchingStore || isFetchingMaster ? <ActivityIndicator size='small' /> : null }
-        />
-      </View>
-      <View style={styles.drawerItemList}>
-        <DrawerItemList {...props} />
-      </View>
-      <View style={{backgroundColor: bckgrndColor, height: 150, padding: 10}}>
+        <View style={styles.drawerItemList}>
+          <DrawerItemList {...props} />
+        </View>
+      </DrawerContentScrollView>
+      <View
+        style={{
+          backgroundColor: bckgrndColor,
+          //height: 150,
+          paddingLeft: 10,
+          marginBottom: 0,
+        }}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Icon2 name="questioncircleo" size={26} color="white" />
           <DrawerItem
@@ -75,7 +79,7 @@ function CustomDrawer(props) {
           />
         </View>
       </View>
-    </DrawerContentScrollView>
+    </>
   );
 }
 
@@ -85,9 +89,7 @@ function CustomDrawer(props) {
 
 const styles = StyleSheet.create({
   drawerItemList: {
-    height: 380,
-    borderBottomWidth: 1,
-    borderBottomColor: '#DDD',
+    //height: winHeight - 150 - 110,
   },
   drawerLogo: {
     //alignItems: 'center',

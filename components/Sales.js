@@ -79,6 +79,7 @@ function Sales({navigation}) {
   }
 
   async function fetchSales() {
+    setLoading(true);
     await AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, sales) => {
         const newData = [];
@@ -188,8 +189,13 @@ function Sales({navigation}) {
         type: [DocumentPicker.types.allFiles],
       });
 
-      readSavedFile(res.name);
-      return res.name;
+      if (res.name.includes('Sales')) {
+        readSavedFile(res.name);
+        return null;
+      } else {
+        alert('Wrong CSV file for sales.');
+        return null;
+      }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         return '';
@@ -320,6 +326,12 @@ function Sales({navigation}) {
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
+    if (nIndex != salesDtl.length) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+
     // let nItemPrce = item.ItemPrce;
     // let nAmount__ = item.Quantity * item.ItemPrce;
 
@@ -391,7 +403,7 @@ function Sales({navigation}) {
         <DateInfo storName={storName} />
         <ActivityIndicator
           size="large"
-          color="#0000ff"
+          color="orange"
           animating={isLoading}
           hidesWhenStopped={true}
           style={{height: 0}}
@@ -423,9 +435,17 @@ function Sales({navigation}) {
             } else {
               return (
                 <View>
+                  {/* <ActivityIndicator
+                    size="large"
+                    color="orange"
+                    animating={isLoading}
+                    hidesWhenStopped={true}
+                    style={{height: 0}}
+                  /> */}
+
                   <Text
                     style={{color: 'white', fontSize: 12, alignSelf: 'center'}}>
-                    End of list.
+                    {isLoading ? 'Loading...' : 'End of list.'}
                   </Text>
                 </View>
               );
@@ -589,7 +609,8 @@ const styles = StyleSheet.create({
     margin: 5,
     borderWidth: 0.8,
     borderColor: 'white',
-    //backgroundColor: '#333',
+    //    backgroundColor: '#333',
+    backgroundColor: 'rgba(0,0,0,.8)',
   },
 });
 

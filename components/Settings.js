@@ -120,7 +120,7 @@ export default function Settings({navigation}) {
       />
       <SafeAreaView style={styles.container}>
         <ImageBackground
-          source={require('../images/settingsBackGround.png')}
+          source={require('../images/abstract_dark_drops.png')}
           style={styles.imgBackground}
           imageStyle={styles.imgStyle}
         />

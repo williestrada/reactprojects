@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, createRef} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Keyboard,
   ActivityIndicator,
   Alert,
-  ScrollView,
+  Dimensions,
   PermissionsAndroid,
 } from 'react-native';
 
@@ -49,7 +49,7 @@ export default function Count({navigation}) {
   );
 
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
-  const [showCounList, setShowCounList] = useState(500);
+  const [showCounList, setShowCounList] = useState(winHeight);
 
   const [countDtl, setCountDtl] = useState([]);
   const [countItem, setCountItem] = useState([]);
@@ -63,7 +63,7 @@ export default function Count({navigation}) {
 
   const [totalQty, setTotalQty] = useState(0);
   const deviceId = DeviceInfo.getDeviceId();
-
+  const winHeight = Dimensions.get('window').height;
   const othercde = React.createRef();
 
   useEffect(() => {
@@ -87,13 +87,13 @@ export default function Count({navigation}) {
   };
 
   async function fetchCount() {
+    setLoading(true);
     await AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, count) => {
         const newData = [];
         let ntotalCount = 0;
         count.map(result => {
           // get at each key/value so you can work with it
-
           if (result[0].includes('COUNT')) {
             let key = result[0];
             let aCount = JSON.parse(result[1]);
@@ -108,7 +108,7 @@ export default function Count({navigation}) {
             let DeviceId = aCount.DeviceId;
             let Is_Saved = aCount.Is_Saved;
 
-            if (!countDtl.some(d => d.RecordId === key)) {
+            if (!countDtl.some(d => d.RecordId === key.substr(5))) {
               ntotalCount += Quantity;
               const data = {
                 RecordId,
@@ -168,7 +168,7 @@ export default function Count({navigation}) {
         return null;
       }
 
-      setShowProdList(500);
+      setShowProdList(winHeight);
       setShowCounList(0);
     }
   };
@@ -204,7 +204,7 @@ export default function Count({navigation}) {
 
     setTotalQty(totalQty + 1);
     setShowProdList(0);
-    setShowCounList(500);
+    setShowCounList(winHeight);
     setOtherCde('');
   };
 
@@ -242,8 +242,13 @@ export default function Count({navigation}) {
         type: [DocumentPicker.types.allFiles],
       });
 
-      readSavedFile(res.name);
-      return res.name;
+      if (res.name.includes('Count')) {
+        readSavedFile(res.name);
+        return null;
+      } else {
+        alert('Wrong CSV file for count.');
+        return null;
+      }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         return '';
@@ -296,7 +301,9 @@ export default function Count({navigation}) {
       return null;
     }
 
-    console.log(data);
+    //console.log(data);
+    setLoading(true);
+
     const newData = [];
     let ntotalCount = 0;
     await data.map(aCount => {
@@ -342,6 +349,7 @@ export default function Count({navigation}) {
 
     setCountDtl(countDtl.concat(newData));
     setTotalQty(totalQty + ntotalCount);
+    setLoading(false);
   }
 
   async function checkStoredData(key, val) {
@@ -372,11 +380,14 @@ export default function Count({navigation}) {
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
-    //const [valQuantity, setQuantity] = useState(item.Quantity.toString() || 0);
+    if (nIndex != countDtl.length) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
 
-    useEffect(() => {
-      console.log(nIndex + ' Rendering Count Flatlist');
-    }, []);
+    // useEffect(() => {
+    // }, []);
 
     const swipeEdit = [
       {
@@ -439,35 +450,6 @@ export default function Count({navigation}) {
                   justifyContent: 'center',
                   backgroundColor: 'rgba(0,0,0,.6)',
                 }}>
-                {/* <TouchableOpacity
-                  onPress={() => {
-                    const newQuantity = Number(valQuantity) - 1;
-                    checkCount(newQuantity.toString()); //prevent negative
-                  }}
-                  style={{
-                    height: 34,
-                    width: 34,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      height: 28,
-                      width: 28,
-                      borderRadius: 28,
-                      backgroundColor: 'red',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Material
-                      type="MaterialCommunityIcons"
-                      name="minus"
-                      size={20}
-                      color="white"
-                    />
-                  </View>
-                </TouchableOpacity> */}
-
                 <Text
                   style={{
                     width: 46,
@@ -481,63 +463,7 @@ export default function Count({navigation}) {
                     borderColor: 'rgba(255,255,255,.7)',
                   }}>
                   {item.Quantity}
-                  {/* // keyboardType="numeric"
-                  // maxLength={6}
-                  // value={valQuantity}
-                  // selectTextOnFocus={true}
-                  // onChangeText={val => checkCount(val)} */}
                 </Text>
-
-                {/* <TouchableOpacity
-                  onPress={() => {
-                    const newQuantity = Number(valQuantity) + 1;
-                    checkCount(newQuantity.toString());
-                  }}
-                  style={{
-                    height: 34,
-                    width: 34,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      height: 28,
-                      width: 28,
-                      borderRadius: 28,
-                      backgroundColor: '#4CD995',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Material
-                      type="MaterialCommunityIcons"
-                      name="plus"
-                      size={20}
-                      color="white"
-                    />
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    editCountData(item, index, valQuantity);
-                  }}
-                  style={{
-                    height: 34,
-                    width: 34,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <View
-                    style={{
-                      height: 28,
-                      width: 28,
-                      paddingLeft: 6,
-                      paddingRight: 0,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Fontisto name="save" size={22} color={isSavedQtyColor} />
-                  </View>
-                </TouchableOpacity> */}
               </View>
             </TouchableOpacity>
           </View>
@@ -621,7 +547,7 @@ export default function Count({navigation}) {
             }}
             onFocus={() => {
               setShowProdList(0);
-              setShowCounList(500);
+              setShowCounList(winHeight);
             }}
             showSoftInputOnFocus={!barScannerOn}
             onChangeText={val => handlerSearchOtherCde(val)}
@@ -665,12 +591,14 @@ export default function Count({navigation}) {
         </Text>
         <ActivityIndicator
           size="large"
-          color="#0000ff"
+          color="orange"
           animating={isLoading}
           hidesWhenStopped={true}
           style={{height: 0}}
         />
-        <ScrollView style={{flex: 1}}>
+
+        {/* ScrollView */}
+        <View style={{flex: 1, marginBottom: 0}}>
           {/* Product View List */}
           <View style={{height: showProdList}}>
             <FlatList
@@ -711,13 +639,21 @@ export default function Count({navigation}) {
                 if (countDtl.length) {
                   return (
                     <View>
+                      {/* <ActivityIndicator
+                        size="large"
+                        color="orange"
+                        animating={isLoading}
+                        hidesWhenStopped={true}
+                        style={{height: 0}}
+                      /> */}
+
                       <Text
                         style={{
                           color: 'white',
                           fontSize: 12,
                           alignSelf: 'center',
                         }}>
-                        End of list.
+                        {isLoading ? 'Loading...' : 'End of list.'}
                       </Text>
                     </View>
                   );
@@ -726,7 +662,8 @@ export default function Count({navigation}) {
               }}
             />
           </View>
-        </ScrollView>
+        </View>
+
         <CountData
           data1={countDtl.length}
           label2={'Total Qty.= '}
@@ -905,11 +842,11 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    padding: 2,
     margin: 5,
     marginLeft: 0,
     borderWidth: 0.8,
     borderColor: 'white',
-    backgroundColor: '#00000000',
+    // backgroundColor: '#00000000',
+    backgroundColor: 'rgba(0,0,0,.8)',
   },
 });

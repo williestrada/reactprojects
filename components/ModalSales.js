@@ -20,7 +20,7 @@ import DeviceInfo from 'react-native-device-info';
 import UserContext from './UserContext';
 import {saveSales} from '../src/RetailAPI';
 
-function ModalSales({storName = '', editMode}) {
+function ModalSales({storName = ''}) {
   const {
     product,
     salesDtl,
@@ -33,13 +33,13 @@ function ModalSales({storName = '', editMode}) {
     setSalesItem,
   } = useContext(UserContext);
 
-  if (typeof salesItem.Quantity == 'undefined' && editMode) return null; //omg thanks to null return
+  //if (typeof salesItem.Quantity == 'undefined' && editMode) return null; //omg thanks to null return
 
-  const dDate____ = !editMode ? new Date() : salesItem.Date____;
-  const cOtherCde = !editMode ? '' : salesItem.OtherCde;
-  const cDescript = !editMode ? '' : salesItem.Descript;
-  const nQuantity = !editMode ? '1' : salesItem.Quantity.toString();
-  const nItemPrce = !editMode ? '0.00' : salesItem.ItemPrce.toString();
+  const dDate____ = new Date();
+  const cOtherCde = '';
+  const cDescript = '';
+  const nQuantity = '1';
+  const nItemPrce = '0.00';
 
   const [date, setDate] = useState(dDate____);
   const [valOtherCde, setOtherCde] = useState(cOtherCde);
@@ -145,7 +145,8 @@ function ModalSales({storName = '', editMode}) {
       return;
     }
 
-    let ntotalSales = Number(valQuantity) * Number(valItemPrce);
+    //let ntotalSales = Number(valQuantity) * Number(valItemPrce);
+    let ntotalSales = valQuantity * valItemPrce;
     console.log(ntotalSales);
     setTotalSales(totalSales + ntotalSales); //CountData
 
@@ -207,7 +208,7 @@ function ModalSales({storName = '', editMode}) {
             <Highlighter
               highlightStyle={{fontWeight: 'bold', color: 'orange'}}
               searchWords={[highLightText]}
-              textToHighlight={nIndex.toString() + '. Code:' + item.OtherCde}
+              textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
               style={styles.txtOtherCde}
               //numberOfLines={1}
             />

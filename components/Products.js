@@ -57,6 +57,12 @@ function Products({navigation}) {
       '$&,',
     );
 
+    if (nIndex != dataList.length) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+
     return (
       <View style={styles.itemContainer}>
         <View style={styles.textCodeView}>
@@ -110,13 +116,13 @@ function Products({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo storName={mfName} />
-        {/* <ActivityIndicator
+        <ActivityIndicator
           size="large"
-          color="#0000ff"
+          color="orange"
           animating={isLoading}
           hidesWhenStopped={true}
           style={{height: 0}}
-        /> */}
+        />
 
         <FlatList
           data={dataList}
@@ -145,9 +151,16 @@ function Products({navigation}) {
             } else {
               return (
                 <View>
+                  {/* <ActivityIndicator
+                    size="large"
+                    color="orange"
+                    animating={isLoading}
+                    hidesWhenStopped={true}
+                    style={{height: 0}}
+                  /> */}
                   <Text
                     style={{color: 'white', fontSize: 12, alignSelf: 'center'}}>
-                    End of list.
+                    {isLoading ? 'Loading...' : 'End of list.'}
                   </Text>
                 </View>
               );

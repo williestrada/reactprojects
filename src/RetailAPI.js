@@ -1,6 +1,7 @@
 import React from 'react';
 import {Alert, PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import moment from 'moment';
 
 import UserContext from '../components/UserContext';
 
@@ -165,10 +166,13 @@ async function exportToCSV(csvData, cTitle) {
     'Retail_' +
     cTitle +
     '_' +
-    Date()
-      .substring(4, 24)
-      .replace(/:|_/g, '')
-      .replace(/ |_/g, '_') +
+    moment()
+      .format('L')
+      .replace(/\//g, '') +
+    moment()
+      .format('LT')
+      .substr(0, 4)
+      .replace(/\:/g, '') +
     '.csv';
   let path = RNFS.DownloadDirectoryPath + '/' + csvFileName;
   // write the file

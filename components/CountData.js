@@ -25,6 +25,8 @@ export default function CountData({
 const styles = StyleSheet.create({
   viewCounter: {
     flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,.8)',
+    marginBottom: 0,
   },
   txtCounter: {
     flex: 2,
