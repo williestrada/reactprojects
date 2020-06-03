@@ -147,7 +147,7 @@ function ModalSales({storName = ''}) {
 
     //let ntotalSales = Number(valQuantity) * Number(valItemPrce);
     let ntotalSales = valQuantity * valItemPrce;
-    console.log(ntotalSales);
+    //console.log(ntotalSales);
     setTotalSales(totalSales + ntotalSales); //CountData
 
     const deviceId = DeviceInfo.getDeviceId();

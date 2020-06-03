@@ -67,7 +67,7 @@ function Count({navigation}) {
   const deviceId = DeviceInfo.getDeviceId();
 
   useEffect(() => {
-    console.log('Rendering Count component');
+    //console.log('Rendering Count component');
     setLoading(true);
     fetchCount();
     getSettingsData();
@@ -381,7 +381,7 @@ function Count({navigation}) {
     let nIndex1 = index + 1;
 
     useEffect(() => {
-      console.log('Rendering ' + item.OtherCde + ' ' + item.Quantity);
+      //console.log('Rendering ' + item.OtherCde + ' ' + item.Quantity);
       if (nIndex1 != countDtl.length) {
         setLoading(true);
       } else {

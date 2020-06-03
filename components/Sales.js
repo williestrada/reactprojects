@@ -75,7 +75,7 @@ function Sales({navigation}) {
 
   async function fetchSalesData() {
     const data = await fetchSalesDb();
-    console.log('fetched sales', data);
+    //console.log('fetched sales', data);
   }
 
   async function fetchSales() {
