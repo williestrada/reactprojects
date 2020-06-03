@@ -20,6 +20,8 @@ import DateInfo from './DateInfo';
 import CountData from './CountData';
 import UserContext from './UserContext';
 import ModalQuantity from './ModalQuantity';
+import ProductPickList from './ProductPickList';
+import CountBarcodeInput from './CountBarcodeInput';
 
 import {saveCount, deleteCount, countToCSV} from '../src/RetailAPI';
 
@@ -37,7 +39,7 @@ import Swipeout from 'react-native-swipeout';
 import moment from 'moment';
 import DocumentPicker from 'react-native-document-picker';
 
-export default function Count({navigation}) {
+function Count({navigation}) {
   const {product, isLoading, setLoading, clearData} = useContext(UserContext);
   const [prodSearch, setProdSearch] = useState('WPE');
   prodSearch ? '' : setProdSearch('WPE'); //clear search when prodSearch =''
@@ -48,6 +50,7 @@ export default function Count({navigation}) {
       mFile.OtherCde.toLowerCase().includes(prodSearch.toLowerCase()),
   );
 
+  const winHeight = Dimensions.get('window').height * 0.65;
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
   const [showCounList, setShowCounList] = useState(winHeight);
 
@@ -57,20 +60,17 @@ export default function Count({navigation}) {
   const [valOtherCde, setOtherCde] = useState('');
   const [txtSearch, setTxtSearch] = useState('WPE');
   const [storName, setStorName] = useState('');
-  const [barScannerOn, setBarScannerOn] = useState(false);
   const [getSettings, setGetSettings] = useState(['', '']);
   const [modalQtyOpen, setModalQtyOpen] = useState(false);
 
   const [totalQty, setTotalQty] = useState(0);
   const deviceId = DeviceInfo.getDeviceId();
-  const winHeight = Dimensions.get('window').height;
-  const othercde = React.createRef();
 
   useEffect(() => {
     console.log('Rendering Count component');
+    setLoading(true);
     fetchCount();
     getSettingsData();
-    setStorName(getSettings[0]);
   }, []);
 
   const getSettingsData = async () => {
@@ -127,17 +127,16 @@ export default function Count({navigation}) {
         });
         setCountDtl(countDtl.concat(newData));
         setTotalQty(ntotalCount);
-        setLoading(false);
+        //setLoading(false);
       });
     });
   }
 
-  //TextInput OtherCde onChange()
+  // Called from CountBarcodeInput
   const handlerSearchOtherCde = val => {
-    // if (1 == 1) return null;
     setOtherCde(val);
     setProdSearch(val); //filters items on Product picklist
-    othercde.current.focus();
+    //othercde.current.focus();
   };
 
   //Add button menu click
@@ -189,7 +188,7 @@ export default function Count({navigation}) {
       OtherCde: cOtherCde,
       Descript: cDescript,
       Quantity: 1,
-      Date____: moment().format('L'),
+      Date____: moment().format('L') + ' ' + moment().format('LT'),
       Location: cLocation,
       UserName: cUserName,
       DeviceId: deviceId,
@@ -379,15 +378,16 @@ export default function Count({navigation}) {
   }
 
   function ItemList({item, index}) {
-    let nIndex = index + 1;
-    if (nIndex != countDtl.length) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
+    let nIndex1 = index + 1;
 
-    // useEffect(() => {
-    // }, []);
+    useEffect(() => {
+      console.log('Rendering ' + item.OtherCde + ' ' + item.Quantity);
+      if (nIndex1 != countDtl.length) {
+        setLoading(true);
+      } else {
+        setLoading(false);
+      }
+    }, []);
 
     const swipeEdit = [
       {
@@ -418,13 +418,13 @@ export default function Count({navigation}) {
           sensitivity={70}
           buttonWidth={100}
           autoClose={true}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <View style={{flex: 1}}>
               <View style={styles.textCodeView}>
                 <Highlighter
                   highlightStyle={{fontWeight: 'bold', color: 'orange'}}
                   searchWords={[txtSearch]}
-                  textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
+                  textToHighlight={nIndex1.toString() + '. # ' + item.OtherCde}
                   style={styles.textOtherCde}
                 />
                 <Text style={styles.textDescript}>{item.Date____}</Text>
@@ -447,8 +447,6 @@ export default function Count({navigation}) {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'rgba(0,0,0,.6)',
                 }}>
                 <Text
                   style={{
@@ -458,9 +456,14 @@ export default function Count({navigation}) {
                     color: 'white',
                     fontSize: 14,
                     marginLeft: 4,
-                    textAlign: 'center',
-                    paddingTop: 10,
+                    padding: 10,
                     borderColor: 'rgba(255,255,255,.7)',
+                    textAlign: 'center',
+                    // alignSelf: 'center',
+                    // alignContent: 'center',
+                    // justifyContent: 'center',
+                    textAlignVertical: 'center',
+                    backgroundColor: 'rgba(0,0,0,.6)',
                   }}>
                   {item.Quantity}
                 </Text>
@@ -472,39 +475,6 @@ export default function Count({navigation}) {
     );
   }
 
-  //Product PickList FlatList render
-  function ProdList({item, index}) {
-    let nIndex = index + 1;
-    let nItemPrce = item.ItemPrce.toFixed(2).replace(
-      /\d(?=(\d{3})+\.)/g,
-      '$&,',
-    );
-
-    return (
-      <View style={styles.itemContainer}>
-        <TouchableOpacity onPress={() => addCountData(item)}>
-          <View style={styles.textCodeView}>
-            <Highlighter
-              highlightStyle={{fontWeight: 'bold', color: 'orange'}}
-              searchWords={[prodSearch]}
-              textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
-              style={styles.textOtherCde}
-              //numberOfLines={1}
-            />
-            <Text style={styles.textItem}>Price: {nItemPrce}</Text>
-          </View>
-          <Highlighter
-            highlightStyle={{fontWeight: 'bold', color: 'orange'}}
-            searchWords={[prodSearch]}
-            textToHighlight={item.Descript.substr(0, 50)}
-            style={styles.textDescript}
-          />
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  let scannerColor = barScannerOn ? 'white' : 'black';
   return (
     <>
       <Header navigation={navigation} title={'Count'} iconName={'settings'} />
@@ -527,64 +497,14 @@ export default function Count({navigation}) {
         />
         <DateInfo storName={storName} />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingTop: 10,
-            alignItems: 'center',
-          }}>
-          <Text style={styles.text}>Bar Code: </Text>
-          <TextInput
-            ref={othercde}
-            style={{...styles.textInput, ...styles.textBarCode}}
-            placeholder="barcode ..."
-            autoCapitalize="characters"
-            maxLength={20}
-            value={valOtherCde}
-            selectTextOnFocus={true}
-            onSubmitEditing={() => {
-              handlerShowProdList();
-            }}
-            onFocus={() => {
-              setShowProdList(0);
-              setShowCounList(winHeight);
-            }}
-            showSoftInputOnFocus={!barScannerOn}
-            onChangeText={val => handlerSearchOtherCde(val)}
-          />
-          <Icon
-            name="speaker-phone"
-            containerStyle={{
-              paddingRight: 0,
-              marginRight: 0,
-              borderWidth: 0,
-            }}
-            size={28}
-            color={scannerColor}
-          />
-          <CheckBox
-            center
-            size={20}
-            checkedColor="white"
-            uncheckedColor="rgba(255,255,255,.7)"
-            onPress={() => {
-              setBarScannerOn(!barScannerOn);
-              othercde.current.focus();
-            }}
-            textStyle={{
-              padding: 0,
-              color: 'white',
-            }}
-            containerStyle={{
-              padding: 0,
-              margin: 0,
-              borderWidth: 0,
-              color: 'white',
-              backgroundColor: '#00000000',
-            }}
-            checked={barScannerOn}
-          />
-        </View>
+        <CountBarcodeInput
+          handlerShowProdList={handlerShowProdList}
+          setShowProdList={setShowProdList}
+          setShowCounList={setShowCounList}
+          handlerSearchOtherCde={handlerSearchOtherCde}
+          valOtherCde={valOtherCde}
+        />
+
         <Text //Line
           style={styles.line}>
           {' '}
@@ -597,33 +517,14 @@ export default function Count({navigation}) {
           style={{height: 0}}
         />
 
-        {/* ScrollView */}
+        {/* FlatLists views */}
         <View style={{flex: 1, marginBottom: 0}}>
           {/* Product View List */}
           <View style={{height: showProdList}}>
-            <FlatList
-              data={dataList}
-              renderItem={({item, index}) => (
-                <ProdList item={item} index={index} />
-              )}
-              keyExtractor={item => item.OtherCde}
-              ListFooterComponent={() => {
-                if (dataList.length) {
-                  return (
-                    <View>
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: 12,
-                          alignSelf: 'center',
-                        }}>
-                        Select item from Product list.
-                      </Text>
-                    </View>
-                  );
-                }
-                return null;
-              }}
+            <ProductPickList
+              dataList={dataList}
+              prodSearch={prodSearch}
+              addCountData={addCountData}
             />
           </View>
 
@@ -634,19 +535,11 @@ export default function Count({navigation}) {
               renderItem={({item, index}) => (
                 <ItemList item={item} index={index} />
               )}
-              keyExtractor={item => item.OtherCde}
+              keyExtractor={item => item.RecordId}
               ListFooterComponent={() => {
                 if (countDtl.length) {
                   return (
                     <View>
-                      {/* <ActivityIndicator
-                        size="large"
-                        color="orange"
-                        animating={isLoading}
-                        hidesWhenStopped={true}
-                        style={{height: 0}}
-                      /> */}
-
                       <Text
                         style={{
                           color: 'white',
@@ -806,16 +699,11 @@ const styles = StyleSheet.create({
   itemContainer: {
     borderBottomWidth: 0.8,
     borderStyle: 'dashed',
-    //borderRadius: 10,
     borderBottomColor: 'rgba(250,250,250,0.4)',
     padding: 3,
-    paddingLeft: 5,
-    paddingRight: 5,
     marginVertical: 2,
     marginHorizontal: 10,
     backgroundColor: 'rgba(100,0,0,.3)',
-    //backgroundColor: '#00000000',
-    //    alignItems: 'center', //centers the delete button
   },
   textCodeView: {
     flexDirection: 'row',
@@ -850,3 +738,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,.8)',
   },
 });
+
+export default React.memo(Count);

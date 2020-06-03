@@ -28,11 +28,28 @@ export default function App() {
   const [modalEditOpen, setModalEditOpen] = useState(false);
   const [totalSales, setTotalSales] = useState(0); //Just for CountData
   const [clearData, setClearData] = useState(true);
+  // const [settings, setSettings] = useState(['', '', '', true]);
 
   useEffect(() => {
     console.log('Fetching masterfile');
     getMasterFile();
   }, []);
+
+  // async function getSettings() {
+  //   let cLocation = '';
+  //   let cUserName = '';
+  //   let cMastFile = '';
+  //   let lClearDta = true;
+  //   let objSetup = await AsyncStorage.getItem('SETUP');
+  //   if (objSetup == null) return;
+  //   JSON.parse(objSetup).map(setup => {
+  //     cLocation = setup.Location.trim();
+  //     cUserName = setup.UserName.trim();
+  //     cMastFile = setup.MastFile.trim();
+  //     lClearDta = setup.ClearDta == 'true' ? true : false;
+  //   });
+  //   setSettings(cLocation, cUserName, cMastFile, lClearDta);
+  // }
 
   async function getMasterFile() {
     let lClearData = true;

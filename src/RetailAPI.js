@@ -161,17 +161,28 @@ export async function salesToCSV(aSales = null, clearData) {
 }
 
 async function exportToCSV(csvData, cTitle) {
+  let objSetup = await AsyncStorage.getItem('SETUP');
+  if (objSetup == null) return;
+  let cUserName = '';
+  JSON.parse(objSetup).map(setup => {
+    cUserName = setup.UserName.trim()
+      .substr(0, 5)
+      .replace(/\ /g, '');
+  });
+
   let RNFS = require('react-native-fs');
   let csvFileName =
-    'Retail_' +
+    cUserName +
+    '_' +
     cTitle +
     '_' +
     moment()
       .format('L')
-      .replace(/\//g, '') +
+      .replace(/\//g, '')
+      .substr(0, 4) +
     moment()
       .format('LT')
-      .substr(0, 4)
+      .substr(0, 5)
       .replace(/\:/g, '') +
     '.csv';
   let path = RNFS.DownloadDirectoryPath + '/' + csvFileName;

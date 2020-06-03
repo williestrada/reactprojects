@@ -405,22 +405,15 @@ function ModalSales({storName = ''}) {
             )}
             keyExtractor={item => item.OtherCde}
             ListHeaderComponent={() => {
-              if (!pickList.length) {
+              if (pickList.length) {
                 return (
                   <View>
                     <Text
                       style={{
-                        color: 'red',
+                        color: 'white',
                         alignSelf: 'center',
                       }}>
-                      {''}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'red',
-                        alignSelf: 'center',
-                      }}>
-                      {' '}
+                      Tap to select item from {pickList.length} Product list.
                     </Text>
                   </View>
                 );
