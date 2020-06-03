@@ -23,7 +23,7 @@ export default function ModalQuantity({
   totalQty,
   setTotalQty,
 }) {
-  //const {countItem} = useContext(UserContext);
+  // const {product} = useContext(UserContext);
 
   if (typeof countItem.Quantity == 'undefined') return null; //omg thanks to null return
   const [valQuantity, setQuantity] = useState(
@@ -119,7 +119,12 @@ export default function ModalQuantity({
           </TouchableOpacity>
 
           <TextInput
-            style={{fontSize: 18, backgroundColor: 'grey', textAlign: 'center'}}
+            style={{
+              fontSize: 18,
+              backgroundColor: 'grey',
+              textAlign: 'center',
+              color: 'white',
+            }}
             placeholder="quantity ..."
             selectTextOnFocus={true}
             value={valQuantity}

@@ -187,10 +187,13 @@ function ModalSales({storName = ''}) {
     //   return [...prevSales, aSales]; //net ninja way of adding
     // });
 
+    // alertMsg('Data is saved.');
+    // othercde.current.focus();
     setOtherCde('');
     setDescript('');
     setQuantity('');
     setItemPrce('');
+
     setModalOpen(false);
   };
 
@@ -516,8 +519,8 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     marginVertical: 2,
     marginHorizontal: 10,
-    //backgroundColor: 'rgba(250,250,250,0.6)',
-    backgroundColor: '#00000000',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    //backgroundColor: '#00000000',
     //    alignItems: 'center', //centers the delete button
   },
   textCodeView: {

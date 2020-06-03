@@ -27,11 +27,8 @@ import {saveCount, deleteCount, countToCSV} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+// import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwe from 'react-native-vector-icons/FontAwesome5';
-import {Icon} from 'react-native-elements';
-
-import {CheckBox} from 'react-native-elements';
 import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 import Highlighter from 'react-native-highlight-words';
@@ -50,6 +47,8 @@ function Count({navigation}) {
       mFile.OtherCde.toLowerCase().includes(prodSearch.toLowerCase()),
   );
 
+  const ITEM_HEIGHT = 40;
+  const flatcount = React.createRef();
   const winHeight = Dimensions.get('window').height * 0.65;
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
   const [showCounList, setShowCounList] = useState(winHeight);
@@ -205,6 +204,10 @@ function Count({navigation}) {
     setShowProdList(0);
     setShowCounList(winHeight);
     setOtherCde('');
+    //
+    if (!cDescript.includes('masterfile')) {
+      flatcount.current.scrollToIndex({animated: true, index: 0});
+    }
   };
 
   const delCountData = item => {
@@ -378,11 +381,11 @@ function Count({navigation}) {
   }
 
   function ItemList({item, index}) {
-    let nIndex1 = index + 1;
+    let nIndex = index + 1;
 
     useEffect(() => {
       //console.log('Rendering ' + item.OtherCde + ' ' + item.Quantity);
-      if (nIndex1 != countDtl.length) {
+      if (nIndex != countDtl.length) {
         setLoading(true);
       } else {
         setLoading(false);
@@ -424,7 +427,7 @@ function Count({navigation}) {
                 <Highlighter
                   highlightStyle={{fontWeight: 'bold', color: 'orange'}}
                   searchWords={[txtSearch]}
-                  textToHighlight={nIndex1.toString() + '. # ' + item.OtherCde}
+                  textToHighlight={nIndex.toString() + '. # ' + item.OtherCde}
                   style={styles.textOtherCde}
                 />
                 <Text style={styles.textDescript}>{item.Date____}</Text>
@@ -531,11 +534,17 @@ function Count({navigation}) {
           {/* Count List */}
           <View style={{height: showCounList}}>
             <FlatList
+              ref={flatcount}
               data={countDtl}
               renderItem={({item, index}) => (
                 <ItemList item={item} index={index} />
               )}
               keyExtractor={item => item.RecordId}
+              getItemLayout={(countDtl, index) => ({
+                length: ITEM_HEIGHT,
+                offset: ITEM_HEIGHT * index,
+                index,
+              })}
               ListFooterComponent={() => {
                 if (countDtl.length) {
                   return (

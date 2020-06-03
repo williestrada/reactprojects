@@ -26,6 +26,7 @@ function Products({navigation}) {
   const [iconSearch, setIconSearch] = useState('search');
   const [labelSearch, setLabelSearch] = useState('Search');
   const [mfName, setMfName] = useState(''); //display at DateInfo
+  const ITEM_HEIGHT = 40;
 
   txtSearch ? '' : setTxtSearch('WPE'); //clear search when txtSearch =''
   const dataList = product.filter(
@@ -128,6 +129,11 @@ function Products({navigation}) {
           data={dataList}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
           keyExtractor={item => item.OtherCde}
+          getItemLayout={(data, index) => ({
+            length: ITEM_HEIGHT,
+            offset: ITEM_HEIGHT * index,
+            index,
+          })}
           ListFooterComponent={() => {
             if (!dataList.length) {
               return (
