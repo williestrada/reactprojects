@@ -231,8 +231,8 @@ export default function Settings({navigation}) {
               alignItems: 'center',
             }}>
             <View style={{flexDirection: 'column'}}>
-              <Text style={styles.longText}>Clear data on Export:</Text>
-              <Text
+              <Text style={styles.longText}>Delete data on Export:</Text>
+              {/* <Text
                 style={{
                   position: 'absolute',
                   marginLeft: 5,
@@ -246,8 +246,18 @@ export default function Settings({navigation}) {
                     : 'rgba(0,200,0,.5)',
                 }}>
                 {''}
-              </Text>
+              </Text> */}
             </View>
+            <Text
+              onPress={toggleClearData}
+              style={{
+                paddingLeft: 8,
+                color: 'white',
+                fontStyle: 'italic',
+                fontFamily: 'serif',
+              }}>
+              No
+            </Text>
             <Switch
               trackColor={{false: '#767577', true: '#767577'}}
               thumbColor={clearData ? 'red' : 'lawngreen'}
@@ -255,8 +265,9 @@ export default function Settings({navigation}) {
               onValueChange={toggleClearData}
               value={clearData}
               style={{
-                paddingLeft: 10,
-                transform: [{scaleX: 1.3}, {scaleY: 1.3}],
+                //paddingLeft: 10,
+                padding: 5,
+                transform: [{scaleX: 1}, {scaleY: 1}],
               }}
             />
             <Text
@@ -267,11 +278,16 @@ export default function Settings({navigation}) {
                 fontStyle: 'italic',
                 fontFamily: 'serif',
               }}>
-              {clearData ? 'Yes' : 'No'}
+              Yes
             </Text>
           </View>
 
-          {/* <Text style={{color: 'white'}}>
+          <Text //Line
+            style={styles.line}>
+            {' '}
+          </Text>
+
+          {/* <Text style={{color: 'red'}}>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -364,6 +380,7 @@ const styles = StyleSheet.create({
   longText: {
     fontSize: 14,
     color: 'white',
+    paddingRight: 10,
   },
 
   bottomMenu: {

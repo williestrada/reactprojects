@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
 
+//import {OptimizedFlatList} from 'react-native-optimized-flatlist';
 import Highlighter from 'react-native-highlight-words';
 
 function ProductPickList({dataList, prodSearch, addCountData}) {
@@ -43,6 +44,8 @@ function ProductPickList({dataList, prodSearch, addCountData}) {
         <ProdList item={item} index={index} addCountData={addCountData} />
       )}
       keyExtractor={item => item.OtherCde}
+      initialNumToRender={20}
+      maxToRenderPerBatch={20}
       ListHeaderComponent={() => {
         if (dataList.length) {
           return (

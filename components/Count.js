@@ -5,9 +5,7 @@ import {
   ImageBackground,
   StyleSheet,
   SafeAreaView,
-  TextInput,
   FlatList,
-  TouchableOpacity,
   Keyboard,
   ActivityIndicator,
   Alert,
@@ -35,6 +33,9 @@ import Highlighter from 'react-native-highlight-words';
 import Swipeout from 'react-native-swipeout';
 import moment from 'moment';
 import DocumentPicker from 'react-native-document-picker';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
+//import {OptimizedFlatList} from 'react-native-optimized-flatlist';
 
 function Count({navigation}) {
   const {product, isLoading, setLoading, clearData} = useContext(UserContext);
@@ -47,7 +48,7 @@ function Count({navigation}) {
       mFile.OtherCde.toLowerCase().includes(prodSearch.toLowerCase()),
   );
 
-  const ITEM_HEIGHT = 40;
+  const ITEM_HEIGHT = 70;
   const flatcount = React.createRef();
   const winHeight = Dimensions.get('window').height * 0.65;
   const [showProdList, setShowProdList] = useState(0); //dont show product Flatlist
@@ -67,8 +68,8 @@ function Count({navigation}) {
 
   useEffect(() => {
     //console.log('Rendering Count component');
-    setLoading(true);
-    fetchCount();
+    //setLoading(true);
+    //fetchCount();
     getSettingsData();
   }, []);
 
@@ -86,7 +87,7 @@ function Count({navigation}) {
   };
 
   async function fetchCount() {
-    setLoading(true);
+    // setLoading(true);
     await AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, count) => {
         const newData = [];
@@ -126,7 +127,7 @@ function Count({navigation}) {
         });
         setCountDtl(countDtl.concat(newData));
         setTotalQty(ntotalCount);
-        //setLoading(false);
+        setLoading(false);
       });
     });
   }
@@ -459,12 +460,13 @@ function Count({navigation}) {
                     color: 'white',
                     fontSize: 14,
                     marginLeft: 4,
-                    padding: 10,
+                    //padding: 10,
                     borderColor: 'rgba(255,255,255,.7)',
                     textAlign: 'center',
-                    // alignSelf: 'center',
-                    // alignContent: 'center',
-                    // justifyContent: 'center',
+                    //alignSelf: 'center',
+                    //alignContent: 'center',
+                    //textAlign: 'center',
+                    //justifyContent: 'center',
                     textAlignVertical: 'center',
                     backgroundColor: 'rgba(0,0,0,.6)',
                   }}>
@@ -540,6 +542,10 @@ function Count({navigation}) {
                 <ItemList item={item} index={index} />
               )}
               keyExtractor={item => item.RecordId}
+              removeClippedSubviews={true}
+              initialNumToRender={50}
+              maxToRenderPerBatch={50}
+              legacyImplementation={true} // this is a conversion to old listview
               getItemLayout={(countDtl, index) => ({
                 length: ITEM_HEIGHT,
                 offset: ITEM_HEIGHT * index,
@@ -573,83 +579,134 @@ function Count({navigation}) {
         />
 
         <View style={styles.bottomMenu}>
-          <Fontisto.Button
-            type="Fontisto"
-            style={{color: 'white'}}
-            size={20}
-            backgroundColor="#00000000"
-            onPress={() => SingleFilePicker()}
-            name={Platform.OS === 'android' ? 'import' : 'import'}>
-            <Text
-              style={{
-                color: 'white',
-                fontFamily: 'Arial',
-                fontSize: 12,
-              }}>
-              Import
-            </Text>
-          </Fontisto.Button>
-
-          <Fontisto.Button
-            type="Fontisto"
-            style={{color: 'white'}}
-            size={20}
-            backgroundColor="#00000000"
-            onPress={() => saveCountHandler(countDtl)}
-            name={Platform.OS === 'android' ? 'export' : 'export'}>
-            <View style={{flexDirection: 'column'}}>
-              <Text
-                style={{
-                  position: 'absolute',
-                  marginLeft: 5,
-                  marginBottom: 2,
-                  height: 12,
-                  width: 12,
-                  borderRadius: 12,
-                  alignSelf: 'flex-end',
-                  backgroundColor: clearData ? 'red' : 'rgba(0,200,0,.5)',
-                }}>
-                {''}
+          <TouchableOpacity
+            onPress={() => {
+              if (countDtl.length) {
+                setCountDtl([]);
+                setTotalQty(0);
+              } else {
+                Alert.alert(
+                  'Alert',
+                  'Listing all items may take some time to reload \n\n' +
+                    'Do you want to continue?',
+                  [
+                    {
+                      text: 'No',
+                      onPress: () => null,
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'YES',
+                      onPress: () => {
+                        setLoading(true);
+                        fetchCount();
+                      },
+                    },
+                  ],
+                );
+              }
+            }}>
+            <Fontisto.Button
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={countDtl.length ? 'close' : 'list-1'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                {countDtl.length ? 'Clear' : 'List'}
               </Text>
+            </Fontisto.Button>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              if (countDtl.length) {
+                alert('Need to clear data before import.');
+              } else {
+                SingleFilePicker();
+              }
+            }}>
+            <Fontisto.Button
+              type="Fontisto"
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'import' : 'import'}>
               <Text
                 style={{
                   color: 'white',
                   fontFamily: 'Arial',
                   fontSize: 12,
                 }}>
-                Export
+                Import
               </Text>
-            </View>
-          </Fontisto.Button>
-          <FontAwe.Button
-            style={{color: 'orange'}}
-            size={20}
-            backgroundColor="#00000000"
+            </Fontisto.Button>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => saveCountHandler(countDtl)}>
+            <Fontisto.Button
+              type="Fontisto"
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'export' : 'export'}>
+              <View style={{flexDirection: 'column'}}>
+                <Text
+                  style={{
+                    position: 'absolute',
+                    marginLeft: 5,
+                    marginBottom: 2,
+                    height: 12,
+                    width: 12,
+                    borderRadius: 12,
+                    alignSelf: 'flex-end',
+                    backgroundColor: clearData ? 'red' : 'rgba(0,200,0,.5)',
+                  }}>
+                  {''}
+                </Text>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontFamily: 'Arial',
+                    fontSize: 12,
+                  }}>
+                  Export
+                </Text>
+              </View>
+            </Fontisto.Button>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => {
               setTxtSearch(valOtherCde);
               Keyboard.dismiss();
-            }}
-            name={Platform.OS === 'android' ? 'highlighter' : 'highlighter'}>
-            <Text
-              style={{
-                color: 'white',
-                fontFamily: 'Arial',
-                fontSize: 12,
-              }}>
-              HiLite
-            </Text>
-          </FontAwe.Button>
-          <Entypo.Button
-            type="Entypo"
-            style={{color: 'white'}}
-            size={20}
-            backgroundColor="#00000000"
-            onPress={() => handlerShowProdList()}
-            name={Platform.OS === 'android' ? 'add-to-list' : 'add-to-list'}>
-            <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
-              Add
-            </Text>
-          </Entypo.Button>
+            }}>
+            <FontAwe.Button
+              style={{color: 'orange'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'highlighter' : 'highlighter'}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'Arial',
+                  fontSize: 12,
+                }}>
+                HiLite
+              </Text>
+            </FontAwe.Button>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => handlerShowProdList()}>
+            <Entypo.Button
+              type="Entypo"
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={Platform.OS === 'android' ? 'add-to-list' : 'add-to-list'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                Add
+              </Text>
+            </Entypo.Button>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </>
@@ -738,9 +795,7 @@ const styles = StyleSheet.create({
   bottomMenu: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    margin: 5,
-    marginLeft: 0,
+    justifyContent: 'space-around',
     borderWidth: 0.8,
     borderColor: 'white',
     // backgroundColor: '#00000000',

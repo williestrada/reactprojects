@@ -5,11 +5,11 @@ import {
   SafeAreaView,
   ImageBackground,
   StyleSheet,
-  FlatList,
   ActivityIndicator,
   Alert,
   BackHandler,
   PermissionsAndroid,
+  FlatList,
 } from 'react-native';
 
 import Header from './Header';
@@ -22,7 +22,6 @@ import {deleteSales, salesToCSV, fetchSalesDb} from '../src/RetailAPI';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
-//import FontAwe from 'react-native-vector-icons/FontAwesome5';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout';
 import DocumentPicker from 'react-native-document-picker';
@@ -51,7 +50,7 @@ function Sales({navigation}) {
   useEffect(() => {
     console.log('Rendering Sales component');
     storeName(); //show store name on top <DateInfo />
-    fetchSales();
+    //fetchSales();
     //fetchSalesData();
     const backAction = () => {
       Alert.alert('Hold on!', 'Do you want to exit InfoPlus?', [
@@ -133,7 +132,7 @@ function Sales({navigation}) {
   };
 
   const editItem = item => {
-    setSalesItem(item), setCurrentItem(item);
+    setSalesItem(item);
     setModalEditOpen(true);
   };
 
@@ -412,6 +411,9 @@ function Sales({navigation}) {
           data={salesDtl}
           renderItem={({item, index}) => <ItemList item={item} index={index} />}
           keyExtractor={item => item.RecordId}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          legacyImplementation={true} // this is a conversion to old listview
           ListFooterComponent={() => {
             if (!salesDtl.length) {
               return (
@@ -461,7 +463,48 @@ function Sales({navigation}) {
         <View style={styles.bottomMenu}>
           <TouchableOpacity
             onPress={() => {
-              SingleFilePicker();
+              if (salesDtl.length) {
+                setSalesDtl([]);
+                setTotalSales(0);
+              } else {
+                Alert.alert(
+                  'Alert',
+                  'Listing all items may take some time to reload \n\n' +
+                    'Do you want to continue?',
+                  [
+                    {
+                      text: 'No',
+                      onPress: () => null,
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'YES',
+                      onPress: () => {
+                        setLoading(true);
+                        fetchSales();
+                      },
+                    },
+                  ],
+                );
+              }
+            }}>
+            <Icon.Button
+              style={{color: 'white'}}
+              size={20}
+              backgroundColor="#00000000"
+              name={salesDtl.length ? 'close' : 'list-1'}>
+              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+                {salesDtl.length ? 'Clear' : 'List'}
+              </Text>
+            </Icon.Button>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (salesDtl.length) {
+                alert('Need to clear data before import.');
+              } else {
+                SingleFilePicker();
+              }
             }}>
             <Icon.Button
               style={{color: 'white'}}
@@ -502,18 +545,6 @@ function Sales({navigation}) {
               </View>
             </Icon.Button>
           </TouchableOpacity>
-
-          {/* <TouchableOpacity onPress={() => AsyncStorage.removeItem('SETUP')}>
-            <Icon.Button
-              style={{color: 'white'}}
-              size={20}
-              backgroundColor="#00000000"
-              name={Platform.OS === 'android' ? 'list-1' : 'list-1'}>
-              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
-                List
-              </Text>
-            </Icon.Button>
-          </TouchableOpacity> */}
 
           <TouchableOpacity
             onPress={() => {
@@ -604,7 +635,7 @@ const styles = StyleSheet.create({
 
   bottomMenu: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-around',
     padding: 2,
     margin: 5,
     borderWidth: 0.8,

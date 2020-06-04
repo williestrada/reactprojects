@@ -7,7 +7,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
   FlatList,
   Keyboard,
 } from 'react-native';
@@ -17,6 +16,8 @@ import {saveSales} from '../src/RetailAPI';
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
 import Highlighter from 'react-native-highlight-words';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
 //import DateTimePicker from '@react-native-community/datetimepicker';
 
 function ModalEditSales() {

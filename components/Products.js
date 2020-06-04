@@ -15,7 +15,7 @@ import DateInfo from './DateInfo';
 import CountData from './CountData';
 import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+//import {TouchableOpacity} from 'react-native-gesture-handler';
 import Highlighter from 'react-native-highlight-words';
 import AsyncStorage from '@react-native-community/async-storage';
 //import AsyncStorage from '@react-native-community/async-storage';
@@ -117,13 +117,13 @@ function Products({navigation}) {
           imageStyle={styles.imgStyle}
         />
         <DateInfo storName={mfName} />
-        <ActivityIndicator
+        {/* <ActivityIndicator
           size="large"
           color="orange"
           animating={isLoading}
           hidesWhenStopped={true}
           style={{height: 0}}
-        />
+        /> */}
 
         <FlatList
           data={dataList}
@@ -157,13 +157,13 @@ function Products({navigation}) {
             } else {
               return (
                 <View>
-                  {/* <ActivityIndicator
+                  <ActivityIndicator
                     size="large"
                     color="orange"
                     animating={isLoading}
                     hidesWhenStopped={true}
                     style={{height: 0}}
-                  /> */}
+                  />
                   <Text
                     style={{color: 'white', fontSize: 12, alignSelf: 'center'}}>
                     {isLoading ? 'Loading...' : 'End of list.'}
