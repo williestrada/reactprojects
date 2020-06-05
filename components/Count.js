@@ -385,13 +385,14 @@ function Count({navigation}) {
     let nIndex = index + 1;
 
     useEffect(() => {
-      //console.log('Rendering ' + item.OtherCde + ' ' + item.Quantity);
-      if (nIndex != countDtl.length) {
+      console.log('Rendering ' + nIndex + ' ' + item.OtherCde);
+      // if (nIndex != countDtl.length) {
+      if (nIndex <= 50 && nIndex != countDtl.length) {
         setLoading(true);
       } else {
         setLoading(false);
       }
-    }, []);
+    }, [totalQty]);
 
     const swipeEdit = [
       {
@@ -542,10 +543,10 @@ function Count({navigation}) {
                 <ItemList item={item} index={index} />
               )}
               keyExtractor={item => item.RecordId}
-              removeClippedSubviews={true}
-              initialNumToRender={50}
+              // removeClippedSubviews={true}
+              initialNumToRender={20}
               maxToRenderPerBatch={50}
-              legacyImplementation={true} // this is a conversion to old listview
+              // legacyImplementation={true} // this is a conversion to old listview
               getItemLayout={(countDtl, index) => ({
                 length: ITEM_HEIGHT,
                 offset: ITEM_HEIGHT * index,
@@ -554,7 +555,21 @@ function Count({navigation}) {
               ListFooterComponent={() => {
                 if (countDtl.length) {
                   return (
-                    <View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        paddingRight: 5,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      {/* <ActivityIndicator
+                        size="small"
+                        color="blue"
+                        animating={isLoading}
+                        hidesWhenStopped={true}
+                        style={{height: 0}}
+                      /> */}
+
                       <Text
                         style={{
                           color: 'white',

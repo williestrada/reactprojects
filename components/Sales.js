@@ -325,7 +325,7 @@ function Sales({navigation}) {
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
-    if (nIndex != salesDtl.length) {
+    if (nIndex <= 50 && nIndex != salesDtl.length) {
       setLoading(true);
     } else {
       setLoading(false);
