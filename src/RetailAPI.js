@@ -110,7 +110,7 @@ export async function countToCSV(aCount = null, clearData) {
     }
   });
   csvData = csvHeader + csvStr;
-  await exportToCSV(csvData, 'Count');
+  await exportToCSV(csvData, 'CNT');
 }
 
 export async function salesToCSV(aSales = null, clearData) {
@@ -157,14 +157,18 @@ export async function salesToCSV(aSales = null, clearData) {
     }
   });
   csvData = csvHeader + csvStr;
-  await exportToCSV(csvData, 'Sales');
+  await exportToCSV(csvData, 'SAL');
 }
 
 async function exportToCSV(csvData, cTitle) {
   let objSetup = await AsyncStorage.getItem('SETUP');
   if (objSetup == null) return;
+  let cLocation = '';
   let cUserName = '';
   JSON.parse(objSetup).map(setup => {
+    cLocation = setup.Location.trim()
+      .substr(0, 5)
+      .replace(/\ /g, '');
     cUserName = setup.UserName.trim()
       .substr(0, 5)
       .replace(/\ /g, '');
@@ -172,6 +176,8 @@ async function exportToCSV(csvData, cTitle) {
 
   let RNFS = require('react-native-fs');
   let csvFileName =
+    cLocation +
+    '_' +
     cUserName +
     '_' +
     cTitle +

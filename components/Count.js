@@ -144,7 +144,10 @@ function Count({navigation}) {
     if (getSettings[0] == '')
       return alert('Pls. set store and user name in Settings');
     Keyboard.dismiss();
-    if (!valOtherCde) return null;
+    if (!valOtherCde) {
+      alert('Pls. enter item to search.');
+      return null;
+    }
     if (dataList.length == 0) {
       Alert.alert(
         'Alert',
@@ -179,16 +182,35 @@ function Count({navigation}) {
 
     let cOtherCde = valOtherCde;
     let cDescript = 'Item is not in the masterfile';
+    let nQuantity = 1;
+    let cRecordId = Date.now();
+    let dDate____ = moment().format('L') + ' ' + moment().format('LT');
+
     if (dataList.length > 0) {
       cOtherCde = item.OtherCde;
       cDescript = item.Descript;
     }
+
+    // check if item exist on listed array
+    const nIndex = countDtl.findIndex(count =>
+      count.OtherCde.includes(cOtherCde),
+    );
+
+    // if exist, do not add new record, find and increment quantity
+    if (nIndex > -1) {
+      flatcount.current.scrollToIndex({animated: true, index: nIndex});
+
+      nQuantity = countDtl[nIndex].Quantity += 1;
+      cRecordId = countDtl[nIndex].RecordId;
+      dDate____ = countDtl[nIndex].Date____;
+    }
+
     let newCount = {
-      RecordId: Date.now(),
+      RecordId: cRecordId,
       OtherCde: cOtherCde,
       Descript: cDescript,
-      Quantity: 1,
-      Date____: moment().format('L') + ' ' + moment().format('LT'),
+      Quantity: nQuantity,
+      Date____: dDate____,
       Location: cLocation,
       UserName: cUserName,
       DeviceId: deviceId,
@@ -196,10 +218,13 @@ function Count({navigation}) {
     };
 
     saveCount(newCount); //RetailAPI
-    let newData = countDtl.unshift(newCount);
-    // setCountDtl(prevCount => {
-    //   return [...prevCount, newCount];
-    // });
+    if (nIndex < 0) {
+      countDtl.unshift(newCount);
+      // let newData = countDtl.unshift(newCount);
+      // setCountDtl(prevCount => {
+      //   return [...prevCount, newCount];
+      // });
+    }
 
     setTotalQty(totalQty + 1);
     setShowProdList(0);
@@ -381,12 +406,28 @@ function Count({navigation}) {
     return result;
   }
 
+  function array_move(arr, old_index, new_index) {
+    while (old_index < 0) {
+      old_index += arr.length;
+    }
+    while (new_index < 0) {
+      new_index += arr.length;
+    }
+    if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+        arr.push(undefined);
+      }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    return arr; // for testing purposes
+  }
+
   function ItemList({item, index}) {
     let nIndex = index + 1;
 
     useEffect(() => {
-      console.log('Rendering ' + nIndex + ' ' + item.OtherCde);
-      // if (nIndex != countDtl.length) {
+      //console.log('Rendering ' + nIndex + ' ' + item.OtherCde);
       if (nIndex <= 50 && nIndex != countDtl.length) {
         setLoading(true);
       } else {
