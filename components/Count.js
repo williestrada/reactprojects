@@ -21,7 +21,7 @@ import ModalQuantity from './ModalQuantity';
 import ProductPickList from './ProductPickList';
 import CountBarcodeInput from './CountBarcodeInput';
 
-import {saveCount, deleteCount, countToCSV} from '../src/RetailAPI';
+import {saveCount, deleteCount, countToCSV, array_move} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -198,11 +198,11 @@ function Count({navigation}) {
 
     // if exist, do not add new record, find and increment quantity
     if (nIndex > -1) {
-      flatcount.current.scrollToIndex({animated: true, index: nIndex});
-
       nQuantity = countDtl[nIndex].Quantity += 1;
       cRecordId = countDtl[nIndex].RecordId;
       dDate____ = countDtl[nIndex].Date____;
+
+      array_move(countDtl, nIndex, 0); //Move item to 1st line
     }
 
     let newCount = {
@@ -406,22 +406,21 @@ function Count({navigation}) {
     return result;
   }
 
-  function array_move(arr, old_index, new_index) {
-    while (old_index < 0) {
-      old_index += arr.length;
-    }
-    while (new_index < 0) {
-      new_index += arr.length;
-    }
-    if (new_index >= arr.length) {
-      var k = new_index - arr.length + 1;
-      while (k--) {
-        arr.push(undefined);
-      }
-    }
-    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-    return arr; // for testing purposes
-  }
+  // function array_move(arr, old_index, new_index) {
+  //   while (old_index < 0) {
+  //     old_index += arr.length;
+  //   }
+  //   while (new_index < 0) {
+  //     new_index += arr.length;
+  //   }
+  //   if (new_index >= arr.length) {
+  //     var k = new_index - arr.length + 1;
+  //     while (k--) {
+  //       arr.push(undefined);
+  //     }
+  //   }
+  //   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  // }
 
   function ItemList({item, index}) {
     let nIndex = index + 1;
