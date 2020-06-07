@@ -5,6 +5,16 @@ import moment from 'moment';
 
 import UserContext from '../components/UserContext';
 
+export function cleanString(input) {
+  var output = '';
+  for (var i = 0; i < input.length; i++) {
+    if (input.charCodeAt(i) <= 127) {
+      output += input.charAt(i);
+    }
+  }
+  return output;
+}
+
 export function array_move(arr, old_index, new_index) {
   while (old_index < 0) {
     old_index += arr.length;

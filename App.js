@@ -51,6 +51,16 @@ export default function App() {
   //   setSettings(cLocation, cUserName, cMastFile, lClearDta);
   // }
 
+  function cleanString(input) {
+    var output = '';
+    for (var i = 0; i < input.length; i++) {
+      if (input.charCodeAt(i) <= 127) {
+        output += input.charAt(i);
+      }
+    }
+    return output;
+  }
+
   async function getMasterFile() {
     let lClearData = true;
     let cMastFile = '';
@@ -64,10 +74,7 @@ export default function App() {
     if (!cMastFile) return; //allow EVEN without masterfile
 
     const RNFS = require('react-native-fs');
-    //const downloadPath = `${RNFS.DownloadDirectoryPath}/db_juices.json`;
-
     const downloadPath = RNFS.DownloadDirectoryPath + '/' + cMastFile;
-    //console.log(downloadPath);
 
     try {
       const granted = await PermissionsAndroid.request(
@@ -80,10 +87,12 @@ export default function App() {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         const newData = [];
         const masterData = await RNFS.readFile(downloadPath, 'utf8');
+
         JSON.parse(masterData).map(mFile => {
           if (true) {
+            let cDescript = cleanString(mFile.Descript);
+            let Descript = cDescript;
             let OtherCde = mFile.OtherCde;
-            let Descript = mFile.Descript;
             let ItemPrce = mFile.ItemPrce;
             const dataProduct = {OtherCde, Descript, ItemPrce};
             newData.push(dataProduct);

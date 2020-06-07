@@ -1,0 +1,9 @@
+npm install --save react-native-camera@git+https://git@github.com/react-native-community/react-native-camera.git
+
+
+To enable video recording feature you have to add the following code to the AndroidManifest.xml:
+
+<uses-permission android:name="android.permission.CAMERA" />
+ <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

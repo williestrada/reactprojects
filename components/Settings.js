@@ -214,7 +214,13 @@ export default function Settings({navigation}) {
                 SingleFilePicker();
               }}
               name={Platform.OS === 'android' ? 'json' : 'json'}>
-              <Text style={{color: 'white', fontFamily: 'Arial', fontSize: 12}}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'Arial',
+                  paddingLeft: 2,
+                  fontSize: 12,
+                }}>
                 json
               </Text>
             </MaterialCom.Button>
@@ -351,7 +357,7 @@ const styles = StyleSheet.create({
   },
   textMastFile: {
     marginRight: 10,
-    width: 150,
+    width: 170,
   },
   textInput: {
     backgroundColor: 'rgba(250,250,250,.7)',

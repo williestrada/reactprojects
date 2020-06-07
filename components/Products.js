@@ -22,7 +22,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 function Products({navigation}) {
   const {product, isLoading, setLoading} = useContext(UserContext);
-  const [txtSearch, setTxtSearch] = useState('WPE');
+  const [txtSearch, setTxtSearch] = useState(' WPE ');
   const [iconSearch, setIconSearch] = useState('search');
   const [labelSearch, setLabelSearch] = useState('Search');
   const [mfName, setMfName] = useState(''); //display at DateInfo
