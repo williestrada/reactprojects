@@ -51,6 +51,7 @@ export default function ModalQuantity({
       OtherCde: item.OtherCde,
       Descript: item.Descript,
       Quantity: nQuantity,
+      ItemCode: item.ItemCode,
       Date____: item.Date____,
       Location: item.Location,
       UserName: item.UserName,

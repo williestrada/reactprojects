@@ -94,7 +94,8 @@ export default function App() {
             let Descript = cDescript;
             let OtherCde = mFile.OtherCde;
             let ItemPrce = mFile.ItemPrce;
-            const dataProduct = {OtherCde, Descript, ItemPrce};
+            let ItemCode = mFile.ItemCode;
+            const dataProduct = {OtherCde, Descript, ItemPrce, ItemCode};
             newData.push(dataProduct);
           }
         });

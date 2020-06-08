@@ -98,7 +98,7 @@ export async function countToCSV(aCount = null, clearData) {
   }
 
   let csvHeader =
-    'RecordId,Date____,OtherCde,Descript,Quantity,Location,UserName,DeviceId' +
+    'RecordId,Date____,OtherCde,Descript,Quantity,ItemCode,Location,UserName,DeviceId' +
     '\r\n';
   let csvStr = '';
   let csvData = '';
@@ -109,6 +109,7 @@ export async function countToCSV(aCount = null, clearData) {
     let OtherCde = count.OtherCde;
     let Descript = count.Descript.replace(/,|_/g, ';'); //remove commas in text field
     let Quantity = count.Quantity;
+    let ItemCode = count.ItemCode;
     let Location = count.Location;
     let UserName = count.UserName;
     let DeviceId = count.DeviceId;
@@ -123,6 +124,8 @@ export async function countToCSV(aCount = null, clearData) {
       Descript +
       ',' +
       Quantity +
+      ',' +
+      ItemCode +
       ',' +
       Location +
       ',' +
@@ -146,7 +149,7 @@ export async function salesToCSV(aSales = null, clearData) {
   }
 
   let csvHeader =
-    'RecordId,Date____,OtherCde,Descript,Quantity,ItemPrce,Location,DeviceId' +
+    'RecordId,Date____,OtherCde,Descript,Quantity,ItemCode,ItemPrce,Location,DeviceId' +
     '\r\n';
   let csvStr = '';
   let csvData = '';
@@ -157,6 +160,7 @@ export async function salesToCSV(aSales = null, clearData) {
     let OtherCde = sales.OtherCde;
     let Descript = sales.Descript.replace(/,|_/g, ';'); //remove commas in text field
     let Quantity = sales.Quantity;
+    let ItemCode = sales.ItemCode;
     let ItemPrce = sales.ItemPrce;
     let Location = sales.Location;
     let DeviceId = sales.DeviceId;
@@ -170,6 +174,8 @@ export async function salesToCSV(aSales = null, clearData) {
       Descript +
       ',' +
       Quantity +
+      ',' +
+      ItemCode +
       ',' +
       ItemPrce +
       ',' +

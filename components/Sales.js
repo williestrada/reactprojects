@@ -94,6 +94,7 @@ function Sales({navigation}) {
             let OtherCde = aSales.OtherCde;
             let Descript = aSales.Descript;
             let Quantity = aSales.Quantity;
+            let ItemCode = aSales.ItemCode;
             let ItemPrce = aSales.ItemPrce;
             let Location = aSales.Location;
             let DeviceId = aSales.DeviceId;
@@ -106,6 +107,7 @@ function Sales({navigation}) {
                 OtherCde,
                 Descript,
                 Quantity,
+                ItemCode,
                 ItemPrce,
                 Location,
                 DeviceId,
@@ -259,6 +261,7 @@ function Sales({navigation}) {
       let Descript = aSales.Descript;
       let Quantity = Number(aSales.Quantity);
       let ItemPrce = Number(aSales.ItemPrce);
+      let ItemCode = aSales.ItemCode;
       let Location = aSales.Location;
       let DeviceId = aSales.DeviceId;
 
@@ -270,6 +273,7 @@ function Sales({navigation}) {
           OtherCde,
           Descript,
           Quantity,
+          ItemCode,
           ItemPrce,
           Location,
           DeviceId,
@@ -282,6 +286,7 @@ function Sales({navigation}) {
         OtherCde: OtherCde,
         Descript: Descript,
         Quantity: Quantity,
+        ItemCode: ItemCode,
         ItemPrce: ItemPrce,
         Date____: Date____,
         Location: Location,
