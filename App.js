@@ -27,7 +27,7 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEditOpen, setModalEditOpen] = useState(false);
   const [totalSales, setTotalSales] = useState(0); //Just for CountData
-  const [clearData, setClearData] = useState(true);
+  const [clearData, setClearData] = useState(false);
   // const [settings, setSettings] = useState(['', '', '', true]);
 
   useEffect(() => {

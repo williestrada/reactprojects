@@ -34,6 +34,7 @@ function CountBarcodeInput({
         selectTextOnFocus={true}
         onSubmitEditing={() => {
           handlerShowProdList();
+          othercde.current.focus();
         }}
         onFocus={() => {
           setShowProdList(0);

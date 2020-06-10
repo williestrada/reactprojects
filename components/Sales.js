@@ -18,7 +18,7 @@ import CountData from './CountData';
 import UserContext from './UserContext';
 import ModalSales from './ModalSales';
 import ModalEditSales from './ModalEditSales';
-import {deleteSales, salesToCSV, fetchSalesDb} from '../src/RetailAPI';
+import {deleteSales, salesToCSV, fetchRetailDb} from '../src/RetailAPI';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Fontisto';
@@ -73,8 +73,8 @@ function Sales({navigation}) {
   }, []);
 
   async function fetchSalesData() {
-    const data = await fetchSalesDb();
-    //console.log('fetched sales', data);
+    const data = await fetchRetailDb();
+    console.log('fetched sales', data);
   }
 
   async function fetchSales() {

@@ -251,11 +251,14 @@ async function exportToCSV(csvData, cTitle) {
   }
 }
 
-export async function fetchSalesDb() {
-  await fetch('192.168.68.106:8082/findSales')
+export async function fetchRetailDb() {
+  await fetch('http://192.168.68.106:5000/findInven')
     .then(response => response.json())
     .then(data => {
-      console.log('Sales data fetched', data);
+      console.log('Inventory data fetched', data);
       return data;
+    })
+    .catch(error => {
+      console.log(error);
     });
 }
