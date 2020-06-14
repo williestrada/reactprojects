@@ -251,13 +251,95 @@ async function exportToCSV(csvData, cTitle) {
   }
 }
 
-export async function fetchRetailDb() {
-  await fetch('http://192.168.68.106:5000/findInven')
+// export async function fetchRetailDb() {
+//   await fetch('http://192.168.68.106:5000/findInven')
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log('Inventory data fetched', data);
+//       return data;
+//     })
+//     .catch(error => {
+//       console.log(error);
+//     });
+// }
+
+export async function addCountDb(count) {
+  await fetch('http://192.168.68.106:5000/count', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(count),
+  })
     .then(response => response.json())
     .then(data => {
-      console.log('Inventory data fetched', data);
-      return data;
+      //console.log('Count data added', data);
     })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+export async function editCountDb(count, cRecordId) {
+  await fetch('http://192.168.68.106:5000/count/' + cRecordId, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(count),
+  })
+    .then(response => response.json())
+    .then(data => {
+      //console.log('Count data edited', data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+export async function deleteCountDb(cRecordId) {
+  await fetch('http://192.168.68.106:5000/count/' + cRecordId, {
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+  })
+    .then(response => response.json())
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+export async function addSalesDb(sales) {
+  await fetch('http://192.168.68.106:5000/sales', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(sales),
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Sales data added', data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+export async function editSalesDb(sales, cRecordId) {
+  await fetch('http://192.168.68.106:5000/sales/' + cRecordId, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(sales),
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Sales data edited', data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+export async function deleteSalesDb(cRecordId) {
+  await fetch('http://192.168.68.106:5000/sales/' + cRecordId, {
+    method: 'DELETE',
+    headers: {'Content-Type': 'application/json'},
+  })
+    .then(response => response.json())
     .catch(error => {
       console.log(error);
     });

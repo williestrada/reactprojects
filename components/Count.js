@@ -21,7 +21,15 @@ import ModalQuantity from './ModalQuantity';
 import ProductPickList from './ProductPickList';
 import CountBarcodeInput from './CountBarcodeInput';
 
-import {saveCount, deleteCount, countToCSV, array_move} from '../src/RetailAPI';
+import {
+  saveCount,
+  deleteCount,
+  countToCSV,
+  array_move,
+  addCountDb,
+  deleteCountDb,
+  editCountDb,
+} from '../src/RetailAPI';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -225,10 +233,9 @@ function Count({navigation}) {
     saveCount(newCount); //RetailAPI
     if (nIndex < 0) {
       countDtl.unshift(newCount);
-      // let newData = countDtl.unshift(newCount);
-      // setCountDtl(prevCount => {
-      //   return [...prevCount, newCount];
-      // });
+      addCountDb(newCount);
+    } else {
+      editCountDb(newCount, cRecordId);
     }
 
     setTotalQty(totalQty + 1);
@@ -243,6 +250,8 @@ function Count({navigation}) {
 
   const delCountData = item => {
     deleteCount(item.RecordId); //RetailAPI
+    deleteCountDb(item.RecordId); //RetailAPI
+
     setCountDtl(prevCount => {
       return prevCount.filter(data => data.RecordId != item.RecordId);
     });

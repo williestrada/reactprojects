@@ -11,7 +11,7 @@ import {
   Keyboard,
 } from 'react-native';
 import UserContext from './UserContext';
-import {saveSales} from '../src/RetailAPI';
+import {saveSales, editSalesDb} from '../src/RetailAPI';
 
 import Icon from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-datepicker';
@@ -190,9 +190,11 @@ function ModalEditSales() {
       Date____: date,
       Location: item.Location,
       DeviceId: item.DeviceId,
+      ItemCode: valItemCode,
     };
 
     saveSales(aSales); //RetailAPI
+    editSalesDb(aSales, item.RecordId); //RetailAPI
 
     const newSalesDtl = salesDtl.map(data =>
       data.RecordId === key

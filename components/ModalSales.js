@@ -18,7 +18,7 @@ import Highlighter from 'react-native-highlight-words';
 import DeviceInfo from 'react-native-device-info';
 
 import UserContext from './UserContext';
-import {saveSales} from '../src/RetailAPI';
+import {saveSales, addSalesDb} from '../src/RetailAPI';
 
 function ModalSales({storName = ''}) {
   const {
@@ -74,8 +74,8 @@ function ModalSales({storName = ''}) {
       alertMsg('Enter bar code or description to search');
       return;
     }
-    if (valOtherCde.length < 5 && product.length > 100) {
-      alertMsg('Enter at least 5 chars to limit search');
+    if (valOtherCde.length < 4 && product.length > 100) {
+      alertMsg('Enter at least 4 chars to limit search');
       return;
     }
     let txtSearch = valOtherCde.trim();
@@ -173,6 +173,8 @@ function ModalSales({storName = ''}) {
       DeviceId: deviceId,
     };
     saveSales(aSales); //RetailAPI
+    addSalesDb(aSales);
+
     salesDtl.unshift(aSales);
 
     // setSalesDtl(prevSales => {

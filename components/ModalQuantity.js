@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 //import UserContext from './UserContext';
-import {saveCount} from '../src/RetailAPI';
+import {saveCount, editCountDb} from '../src/RetailAPI';
 
 import Icon from 'react-native-vector-icons/Fontisto';
 import Material from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -60,6 +60,8 @@ export default function ModalQuantity({
     };
 
     saveCount(newCount); //RetailAPI
+    editCountDb(newCount, item.RecordId);
+
     const newCountDtl = countDtl.map(data =>
       data.RecordId === key
         ? {...data, Quantity: nQuantity, Is_Saved: true}
