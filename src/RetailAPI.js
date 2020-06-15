@@ -312,7 +312,7 @@ export async function addSalesDb(sales) {
   })
     .then(response => response.json())
     .then(data => {
-      console.log('Sales data added', data);
+      //console.log('Sales data added', data);
     })
     .catch(error => {
       console.log(error);
@@ -327,7 +327,7 @@ export async function editSalesDb(sales, cRecordId) {
   })
     .then(response => response.json())
     .then(data => {
-      console.log('Sales data edited', data);
+      //console.log('Sales data edited', data);
     })
     .catch(error => {
       console.log(error);

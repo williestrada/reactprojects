@@ -1,9 +1,11 @@
-import React, {useContext} from 'react';
+import React, {useState} from 'react';
 
 import {View, Image, StyleSheet, BackHandler} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/AntDesign';
+
+import ModalAbout from '../components/ModalAbout';
 
 import {
   DrawerContentScrollView,
@@ -20,10 +22,10 @@ const callAbout = props => {
 
 const bckgrndColor = 'dimgray';
 function CustomDrawer(props) {
-  //alert(props.productData);
+  const [aboutOpen, setAboutOpen] = useState(false);
   return (
     <>
-      <DrawerContentScrollView style={{}}>
+      <DrawerContentScrollView>
         <View
           style={{
             flexDirection: 'row',
@@ -65,7 +67,10 @@ function CustomDrawer(props) {
           <DrawerItem
             label="About"
             labelStyle={{color: 'white', fontWeight: 'bold'}}
-            onPress={() => callAbout(props)}
+            onPress={() => {
+              callAbout(props);
+              setAboutOpen(true);
+            }}
           />
         </View>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -78,6 +83,7 @@ function CustomDrawer(props) {
             }}
           />
         </View>
+        <ModalAbout aboutOpen={aboutOpen} setAboutOpen={setAboutOpen} />
       </View>
     </>
   );

@@ -1,24 +1,34 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
 import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-function Header({navigation, title, iconName}) {
+function Header({navigation, title, iconName, iconAbout}) {
   console.log('Rendering Header component');
   return (
     <View>
       <View style={styles.topHeaderContainer}>
         <TouchableOpacity style={styles.imgLogo}>
-          <Icon name={iconName} size={20} color="white" />
+          {typeof iconAbout == 'undefined' ? (
+            <Icon name={iconName} size={20} color="white" />
+          ) : null}
+          {typeof iconAbout != 'undefined' ? (
+            <Icon2 name={iconAbout} size={20} color="white" />
+          ) : null}
         </TouchableOpacity>
         <View style={styles.centerNote}>
           <Text style={styles.txtHeader}> {title} </Text>
         </View>
-        <TouchableOpacity
-          style={styles.txtDummy}
-          onPress={() => navigation.openDrawer()}>
-          <Icon name="menu" size={20} color="white" />
-        </TouchableOpacity>
+        {typeof iconAbout == 'undefined' ? (
+          <TouchableOpacity
+            style={styles.txtDummy}
+            onPress={() => navigation.openDrawer()}>
+            <Icon name="menu" size={20} color="white" />
+          </TouchableOpacity>
+        ) : (
+          <Text>{'         '}</Text>
+        )}
       </View>
     </View>
   );
