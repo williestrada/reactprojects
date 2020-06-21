@@ -9,25 +9,31 @@ import {
   TouchableOpacity,
   PermissionsAndroid,
   TextInput,
+  Keyboard,
 } from 'react-native';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Header from './Header';
-import {ScrollView} from 'react-native-gesture-handler';
+import {
+  ScrollView,
+  TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import SmsAndroid from 'react-native-get-sms-android';
 //import {TextInput} from 'react-native-paper';
 
 export default function ModalAbout({aboutOpen, setAboutOpen}) {
   const logo = require('../images/retail.png');
   const about = require('../images/datafast.bmp');
-  const [valPhoneNum, setPhoneNum] = useState('');
+  const [valPhoneNum, setPhoneNum] = useState('09994893981');
+  const [valPhoneMsg, setPhoneMsg] = useState('');
+  const [valmsgHeight, setMsgHeight] = useState(0);
 
-  const sendSMS = async smsNumber => {
-    // let phoneNumbers = {
-    //   addressList: ['+639491431584'],
-    // };
+  const phonenum = React.useRef();
+  const phonemsg = React.useRef();
 
+  const sendSMS = async () => {
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.SEND_SMS,
@@ -39,14 +45,14 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         // Permission has already been granted
         SmsAndroid.autoSend(
-          // JSON.stringify(phoneNumbers),  //Puewede multi recipients
-          smsNumber,
-          'How much do you charge for this retail app?',
+          // JSON.stringify(phoneNumbers),  //Puwede multi recipients
+          JSON.stringify('[' + valPhoneNum + ']'),
+          valPhoneMsg + '\n\n-msg sent from Retail App',
           fail => {
-            console.log('Failed with this error: ' + fail);
+            alert('Failed to send message: ' + fail);
           },
           success => {
-            console.log('SMS sent successfully');
+            alert('SMS sent to ' + valPhoneNum);
           },
         );
       }
@@ -55,6 +61,7 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
     }
   };
 
+  let nHeight = valmsgHeight;
   return (
     <Modal visible={aboutOpen}>
       <Header title={'About'} iconAbout={'questioncircleo'} />
@@ -83,54 +90,72 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
             style={styles.line}>
             {' '}
           </Text>
-          <ScrollView>
-            <View
+          {/* <ScrollView> */}
+          <View
+            style={{
+              padding: 20,
+              backgroundColor: 'gray',
+            }}>
+            <Text
               style={{
-                padding: 20,
-                backgroundColor: 'gray',
+                textAlign: 'center',
+                fontSize: 12,
+                color: 'white',
               }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 12,
-                  color: 'white',
-                }}>
-                Handy data collector to keep track of inventory movements
-                designed for retail stores.
-                {'\n\n'}It can interface with mobile barcode scanner devices
-                that will take the form of a real scanner and your phone as
-                hardware for data storage.
-                {'\n\n'}A product item file can be uploaded to serve as first
-                level of validation by giving reference to the description of
-                the scanned item.
-              </Text>
-            </View>
-            <Text style={{textAlign: 'center', fontSize: 12}}>
-              For technical support, comments and feedback,
-              {'\n'}Pls. send SMS to 0999-4893981
+              Handy data collector to keep track of inventory movements designed
+              for retail stores.
+              {'\n\n'}It can interface with mobile barcode scanner devices that
+              will take the form of a real scanner and your phone as hardware
+              for data storage.
+              {'\n\n'}A product item file can be uploaded to serve as first
+              level of validation and reference to the description of the
+              scanned item.
             </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              setMsgHeight(140);
+              //setPhoneNum('09994893981')
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 12,
+                color: 'blue',
+                fontStyle: 'italic',
+              }}>
+              For technical support, comments and feedback,
+              {'\n'}Tap here to send SMS to 0999-4893981
+            </Text>
+          </TouchableOpacity>
 
-            {/* <Text //Line
+          {/* <Text //Line
             style={styles.line}>
             {' '}
           </Text> */}
-          </ScrollView>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              // backgroundColor: 'yellow',
-              width: 180,
-            }}>
+          {/* </ScrollView> */}
+        </View>
+      </View>
+      <View
+        style={{
+          height: nHeight,
+          backgroundColor: 'white',
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+          }}>
+          <View style={{flex: 1}}>
             <TextInput
+              ref={phonenum}
               style={{
-                backgroundColor: 'white',
-                borderRadius: 10,
-                margin: 10,
-                padding: 10,
-                height: 40,
-                width: 130,
+                backgroundColor: 'lightgrey',
+                height: nHeight / 3,
+                textAlign: 'center',
+                fontSize: 18,
               }}
               placeholder="enter phone no..."
               defaultValue="09994893981"
@@ -138,52 +163,101 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
               selectTextOnFocus={true}
               onChangeText={val => setPhoneNum(val)}
             />
-
-            <TouchableOpacity
-              onPress={() => {
-                Alert.alert(
-                  'Confirm',
-                  'Retail app will use your default SMS app in sending messages\n' +
-                    'Do you want to send to ' +
-                    valPhoneNum +
-                    ' ?',
-                  [
-                    {
-                      text: 'No',
-                      onPress: () => {
-                        return null;
-                      },
-                      style: 'cancel',
-                    },
-                    {text: 'YES', onPress: () => sendSMS(valPhoneNum)},
-                  ],
-                );
-              }}>
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: 'white',
-                  backgroundColor: 'dodgerblue',
-                  height: 40,
-                  width: 80,
-                  textAlign: 'center',
-                  alignSelf: 'center',
-                  textAlignVertical: 'center',
-                }}>
-                Send
-              </Text>
-            </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            onPress={() => {
+              setMsgHeight(0), Keyboard.dismiss(), setAboutOpen(false);
+            }}>
+            <Icon
+              name="cancel"
+              size={24}
+              color="white"
+              style={{
+                backgroundColor: 'red',
+                height: nHeight / 3,
+                width: 80,
+                textAlign: 'center',
+                textAlignVertical: 'center',
+              }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!valPhoneNum || valPhoneNum.length < 11) {
+                alert('Invalid phone no.\nPls. enter phone no. to send.');
+                phonenum.current.focus();
+                return null;
+              }
+              if (!valPhoneMsg) {
+                alert('Pls. enter message to send.');
+                phonemsg.current.focus();
+                return null;
+              }
+              Alert.alert(
+                'Confirm',
+                'Retail app will use your default SMS app in sending messages\n' +
+                  'Do you want to send to ' +
+                  valPhoneNum +
+                  ' ?',
+                [
+                  {
+                    text: 'No',
+                    onPress: () => {
+                      return null;
+                    },
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'YES',
+                    onPress: () => {
+                      {
+                        sendSMS(valPhoneNum),
+                          setPhoneNum(''),
+                          phonenum.current.focus();
+                      }
+                    },
+                  },
+                ],
+              );
+            }}>
+            <Icon
+              name="send"
+              size={24}
+              color="white"
+              style={{
+                backgroundColor: 'dodgerblue',
+                height: nHeight / 3,
+                width: 80,
+                textAlign: 'center',
+                textAlignVertical: 'center',
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            //backgroundColor: 'red',
+            borderColor: 'rgb(250,250,250)',
+          }}>
+          <TextInput
+            ref={phonemsg}
+            placeholder="enter message..."
+            value={valPhoneMsg}
+            selectTextOnFocus={true}
+            multiline={true}
+            onChangeText={val => setPhoneMsg(val)}
+          />
         </View>
       </View>
-
       <View style={styles.bottomMenu}>
         <Fontisto.Button
           style={{color: 'white'}}
           size={20}
           backgroundColor="#00000000"
           onPress={() => {
-            setAboutOpen(false);
+            {
+              setMsgHeight(0), setPhoneMsg(''), setAboutOpen(false);
+            }
           }}
           name={Platform.OS === 'android' ? 'check' : 'check'}>
           <Text

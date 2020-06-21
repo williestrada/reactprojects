@@ -72,6 +72,8 @@ export default function App() {
     setClearData(lClearData); // I include to pick up clearData state here
     if (!cMastFile) return; //allow EVEN without masterfile
 
+    let cFileExt = /[.]/.exec(cMastFile) ? /[^.]+$/.exec(cMastFile) : undefined;
+
     const RNFS = require('react-native-fs');
     const downloadPath = RNFS.DownloadDirectoryPath + '/' + cMastFile;
 
@@ -85,25 +87,59 @@ export default function App() {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         const newData = [];
-        const masterData = await RNFS.readFile(downloadPath, 'utf8');
+        let masterData = await RNFS.readFile(downloadPath, 'utf8');
 
-        JSON.parse(masterData).map(mFile => {
-          if (true) {
-            let cDescript = cleanString(mFile.Descript);
-            let Descript = cDescript;
-            let OtherCde = mFile.OtherCde;
-            let ItemPrce = mFile.ItemPrce;
-            let ItemCode = mFile.ItemCode;
-            const dataProduct = {OtherCde, Descript, ItemPrce, ItemCode};
-            newData.push(dataProduct);
-          }
-        });
+        if (cFileExt == 'csv') {
+          masterData = await csvJSON(masterData);
+          masterData.map(mFile => {
+            if (true) {
+              let cDescript = cleanString(mFile.Descript);
+              let Descript = cDescript;
+              let OtherCde = mFile.OtherCde;
+              let ItemPrce = Number(mFile.ItemPrce);
+              let ItemCode = mFile.ItemCode;
+              const dataProduct = {OtherCde, Descript, ItemPrce, ItemCode};
+              newData.push(dataProduct);
+            }
+          });
+        } else {
+          JSON.parse(masterData).map(mFile => {
+            if (true) {
+              let cDescript = cleanString(mFile.Descript);
+              let Descript = cDescript;
+              let OtherCde = mFile.OtherCde;
+              let ItemPrce = mFile.ItemPrce;
+              let ItemCode = mFile.ItemCode;
+              const dataProduct = {OtherCde, Descript, ItemPrce, ItemCode};
+              newData.push(dataProduct);
+            }
+          });
+        }
+
         await setProduct(newData);
         setLoading(false);
       }
     } catch (err) {
       alert(err);
     }
+  }
+
+  function csvJSON(csv) {
+    const lines = csv.split('\r\n');
+    const result = [];
+    const headers = lines[0].split(',');
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const obj = {};
+      const currentline = lines[i].split(',');
+
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = currentline[j];
+      }
+      result.push(obj);
+    }
+    return result;
   }
 
   return (

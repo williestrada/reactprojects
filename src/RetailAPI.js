@@ -3,8 +3,6 @@ import {Alert, PermissionsAndroid} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 
-import UserContext from '../components/UserContext';
-
 export function cleanString(input) {
   var output = '';
   for (var i = 0; i < input.length; i++) {

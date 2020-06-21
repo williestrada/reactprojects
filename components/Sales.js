@@ -187,7 +187,7 @@ function Sales({navigation}) {
         type: [DocumentPicker.types.allFiles],
       });
 
-      if (res.name.includes('Sales')) {
+      if (res.name.includes('SAL')) {
         readSavedFile(res.name);
         return null;
       } else {

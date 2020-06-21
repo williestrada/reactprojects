@@ -284,7 +284,7 @@ function Count({navigation}) {
         type: [DocumentPicker.types.allFiles],
       });
 
-      if (res.name.includes('Count')) {
+      if (res.name.includes('CNT')) {
         readSavedFile(res.name);
         return null;
       } else {

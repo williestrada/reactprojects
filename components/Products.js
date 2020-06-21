@@ -9,19 +9,19 @@ import {
   ActivityIndicator,
   TextInput,
   Keyboard,
+  PermissionsAndroid,
 } from 'react-native';
 import Header from './Header';
 import DateInfo from './DateInfo';
 import CountData from './CountData';
 import UserContext from './UserContext';
 import Icon from 'react-native-vector-icons/Fontisto';
-//import {TouchableOpacity} from 'react-native-gesture-handler';
+
 import Highlighter from 'react-native-highlight-words';
 import AsyncStorage from '@react-native-community/async-storage';
-//import AsyncStorage from '@react-native-community/async-storage';
 
 function Products({navigation}) {
-  const {product, isLoading, setLoading} = useContext(UserContext);
+  const {product, setProduct, isLoading, setLoading} = useContext(UserContext);
   const [txtSearch, setTxtSearch] = useState(' WPE ');
   const [iconSearch, setIconSearch] = useState('search');
   const [labelSearch, setLabelSearch] = useState('Search');
@@ -102,6 +102,7 @@ function Products({navigation}) {
       setLabelSearch('Clear');
     }
   };
+
   return (
     <>
       <Header
@@ -255,8 +256,9 @@ const styles = StyleSheet.create({
 
   bottomMenu: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    padding: 2,
+    justifyContent: 'space-around',
+    paddingLeft: 10,
+    paddingRight: 10,
     margin: 5,
     borderWidth: 0.8,
     borderColor: 'white',
