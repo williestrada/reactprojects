@@ -242,7 +242,7 @@ function Count({navigation}) {
     setShowProdList(0);
     setShowCounList(winHeight);
     setOtherCde('');
-    setTxtSearch(cDescript); //HiLite barcode
+    setTxtSearch(cOtherCde); //HiLite barcode
     if (!cDescript.includes('masterfile')) {
       flatcount.current.scrollToIndex({animated: true, index: 0});
     }

@@ -1,16 +1,60 @@
-import React from 'react';
-import {View, Text, Modal, StyleSheet, Image} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  StyleSheet,
+  Image,
+  Alert,
+  TouchableOpacity,
+  PermissionsAndroid,
+  TextInput,
+} from 'react-native';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 
 import Header from './Header';
 import {ScrollView} from 'react-native-gesture-handler';
+import SmsAndroid from 'react-native-get-sms-android';
+//import {TextInput} from 'react-native-paper';
 
 export default function ModalAbout({aboutOpen, setAboutOpen}) {
   const logo = require('../images/retail.png');
   const about = require('../images/datafast.bmp');
+  const [valPhoneNum, setPhoneNum] = useState('');
 
-  //  console.log('Rendering About component');
+  const sendSMS = async smsNumber => {
+    // let phoneNumbers = {
+    //   addressList: ['+639491431584'],
+    // };
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.SEND_SMS,
+        {
+          message: 'InfoPlus needs access to your storage to read a file.',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Permission has already been granted
+        SmsAndroid.autoSend(
+          // JSON.stringify(phoneNumbers),  //Puewede multi recipients
+          smsNumber,
+          'How much do you charge for this retail app?',
+          fail => {
+            console.log('Failed with this error: ' + fail);
+          },
+          success => {
+            console.log('SMS sent successfully');
+          },
+        );
+      }
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   return (
     <Modal visible={aboutOpen}>
       <Header title={'About'} iconAbout={'questioncircleo'} />
@@ -26,7 +70,7 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
           style={{
             flex: 2,
             backgroundColor: 'lightgrey',
-            paddingTop: 20,
+            paddingTop: 10,
             alignItems: 'center',
           }}>
           <Image
@@ -53,14 +97,17 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
                 }}>
                 Handy data collector to keep track of inventory movements
                 designed for retail stores.
-                {/* {'\n\n'}Available components are Sales and Count modules. */}
-                {'\n\n'}Compatible with barcode scanner devices via wireless
-                connection using phone's bluetooth feature.
+                {'\n\n'}It can interface with mobile barcode scanner devices
+                that will take the form of a real scanner and your phone as
+                hardware for data storage.
+                {'\n\n'}A product item file can be uploaded to serve as first
+                level of validation by giving reference to the description of
+                the scanned item.
               </Text>
             </View>
             <Text style={{textAlign: 'center', fontSize: 12}}>
-              For technical support and feedback,
-              {'\n'}Pls. call or send SMS to 0999-4893981
+              For technical support, comments and feedback,
+              {'\n'}Pls. send SMS to 0999-4893981
             </Text>
 
             {/* <Text //Line
@@ -68,8 +115,68 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
             {' '}
           </Text> */}
           </ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              // backgroundColor: 'yellow',
+              width: 180,
+            }}>
+            <TextInput
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 10,
+                margin: 10,
+                padding: 10,
+                height: 40,
+                width: 130,
+              }}
+              placeholder="enter phone no..."
+              defaultValue="09994893981"
+              value={valPhoneNum}
+              selectTextOnFocus={true}
+              onChangeText={val => setPhoneNum(val)}
+            />
+
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  'Confirm',
+                  'Retail app will use your default SMS app in sending messages\n' +
+                    'Do you want to send to ' +
+                    valPhoneNum +
+                    ' ?',
+                  [
+                    {
+                      text: 'No',
+                      onPress: () => {
+                        return null;
+                      },
+                      style: 'cancel',
+                    },
+                    {text: 'YES', onPress: () => sendSMS(valPhoneNum)},
+                  ],
+                );
+              }}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: 'white',
+                  backgroundColor: 'dodgerblue',
+                  height: 40,
+                  width: 80,
+                  textAlign: 'center',
+                  alignSelf: 'center',
+                  textAlignVertical: 'center',
+                }}>
+                Send
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
+
       <View style={styles.bottomMenu}>
         <Fontisto.Button
           style={{color: 'white'}}
@@ -96,7 +203,7 @@ export default function ModalAbout({aboutOpen, setAboutOpen}) {
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'red',
+    backgroundColor: 'dodgerblue',
     flexDirection: 'row',
   },
   bottomMenu: {

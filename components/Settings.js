@@ -6,10 +6,10 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TextInput,
   Keyboard,
   Alert,
   Switch,
+  TextInput,
 } from 'react-native';
 
 import Header from './Header';
@@ -27,14 +27,21 @@ export default function Settings({navigation}) {
   const [valLocation, setLocation] = useState('');
   const [valUserName, setUserName] = useState('');
   const [valMastFile, setMastFile] = useState('');
+  const [valSetUpCde, setSetUpCde] = useState('');
   const deviceId = DeviceInfo.getDeviceId();
+  const [valAuthUser, setAuthUser] = useState(false);
 
   //reference to textinput fields
   const location = React.createRef();
   const username = React.createRef();
   const mastfile = React.createRef();
+  const setupcde = React.createRef();
 
   const {clearData, setClearData} = useContext(UserContext);
+  const nNumArray = [21, 1, 31, 28, 20, 7, 9];
+  const cSetUpCde = String(
+    920 * new Date().getDate() + 24 + nNumArray[new Date().getDay() - 1],
+  ).padStart(5, '0');
 
   useEffect(() => {
     console.log('Rendering Settings component');
@@ -44,6 +51,7 @@ export default function Settings({navigation}) {
   const toggleClearData = () => {
     setClearData(!clearData);
   };
+
   const getSettings = async () => {
     const aSettings = await AsyncStorage.getItem('SETUP');
     if (aSettings != null) {
@@ -53,6 +61,10 @@ export default function Settings({navigation}) {
         setMastFile(setup.MastFile);
         let lClearData = setup.ClearDta == 'true' ? true : false;
         setClearData(lClearData);
+        if (setup.SetUpCde.length > 0) {
+          setAuthUser(true);
+          setSetUpCde(cSetUpCde);
+        }
       });
     }
   };
@@ -87,6 +99,23 @@ export default function Settings({navigation}) {
       username.current.focus();
       return;
     }
+    if (!valAuthUser) {
+      if (!valSetUpCde.length || valSetUpCde == 'undefined') {
+        alert('Please enter setup code.');
+        setupcde.current.focus();
+        return;
+      }
+      if (valSetUpCde !== cSetUpCde) {
+        alert('Sorry setup code is not correct.\nPlease try again.');
+        console.log(cSetUpCde);
+        setupcde.current.clear();
+        setupcde.current.focus();
+        return;
+      } else {
+        setAuthUser(true);
+      }
+    }
+
     if (valMastFile.length < 10 || valMastFile == 'undefined') {
     }
     await AsyncStorage.setItem(
@@ -96,6 +125,7 @@ export default function Settings({navigation}) {
           Location: valLocation,
           UserName: valUserName,
           MastFile: valMastFile,
+          SetUpCde: valSetUpCde,
           ClearDta: clearData ? 'true' : 'false',
         },
       ]),
@@ -227,6 +257,29 @@ export default function Settings({navigation}) {
               </Text>
             </MaterialCom.Button>
           </View>
+          <Text //Line
+            style={styles.line}>
+            {' '}
+          </Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              paddingTop: 5,
+              alignItems: 'center',
+            }}>
+            <Text style={styles.text}>Setup Code: </Text>
+            <TextInput
+              ref={setupcde}
+              style={{...styles.textInput, ...styles.textStore}}
+              placeholder="enter code..."
+              value={valSetUpCde}
+              onChangeText={val => setSetUpCde(val)}
+              secureTextEntry={true}
+              editable={!valAuthUser} //if false, need to setup authorization
+            />
+          </View>
+
           <Text //Line
             style={styles.line}>
             {' '}
